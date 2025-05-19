@@ -17,13 +17,13 @@ devtools::install_github("fmuny/fairpolicytree")
 
 ## 📄 Documentation
 
-* **Package documentation PDF** [Download here](#)
+* **Package documentation PDF** [Download here](https://github.com/fmuny/fairpolicytree/blob/main/fairpolicytree_0.1.0.pdf?raw=true)
 
 ## 🔁 Reproducing the Results
 
 To replicate the empirical results from the paper:
 
-Open the [replication notebook](#) for a step-by-step guide or
+Open the [replication notebook](https://fmuny.github.io/fairpolicytree/replication_paper/replication_notebook.html) for a step-by-step guide or
 
 1. Navigate to the `replication_paper` folder.
 2. Follow the instructions in the included scripts
@@ -36,5 +36,5 @@ If you use this package or replication materials, please cite the paper:
 
 ## 📜 License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+This project is licensed under the MIT License.
 
