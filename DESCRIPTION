@@ -1,0 +1,15 @@
+Package: fairpolicytree
+Title: Fair and Interpretable Policy Learning with Decision Trees
+Version: 0.1.0
+Authors@R: 
+    person("Fabian", "Muny", , "fabian.muny@unisg.ch", role = c("aut", "cre"))
+Description: 
+    Extends the 'policytree' package by integrating fairness into algorithmic
+    decision-making using policy trees, a class of interpretable decision rules.
+    Useful for applications where both fairness and interpretability are
+    essential, such as treatment assignment in public policy contexts.
+Depends:
+    R (>= 3.5.0)
+License: MIT + file LICENSE
+Encoding: UTF-8
+RoxygenNote: 7.3.2
