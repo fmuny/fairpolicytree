@@ -1,0 +1,714 @@
+---
+title: "**Replication Notebook for *Interpretable Policy Learning with Sensitive Attributes***"
+author: "Nora Bearth, Michael Lechner, Jana Mareckova, Fabian Muny"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This notebook provides a condensed replication of the empirical results of the paper
+*Interpretable Policy Learning with Sensitive Attributes* by Nora Bearth, Michael Lechner,
+Jana Mareckova and Fabian Muny.
+
+## Preparations
+
+The functions used for the analysis can be accessed with the ``fairpolicytree`` package, which can be installed from github using ``install_github("fmuny/fairpolicytree")``. This is an extension of the ``policytree`` package ([Sverdrup, Kanodia, Zhou, Athey, Wager, 2020](https://cran.r-project.org/web/packages/policytree/index.html)). To start, load the required packages and define basic parameters.
+
+```{r packages, results='hide', message = FALSE, warning=FALSE}
+# Packages
+library(fairpolicytree)
+library(policytree)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(gridExtra)
+library(rcompanion)
+library(BayesFactor)
+library(patchwork)
+library(stringr)
+library(knitr)
+library(kableExtra)
+library(cluster)
+
+# Data source path
+DATA_PATH <- "Q:/SEW/Projekte/NFP77/BeLeMaMu.Fairness/Data_fair/cleaned"
+
+# Method for ties in fairness adjustments
+# One of "average", "first", "last", "random", "max", "min"
+# see https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/rank
+TIES_METHOD <- 'random'
+
+# Depth of policy trees
+PT_DEPTH <- 3
+PT_SEARCH_DEPTH <- PT_DEPTH
+# If PT_SEARCH_DEPTH = PT_DEPTH then an exact tree is built.
+# If PT_SEARCH_DEPTH < PT_DEPTH then a hybrid tree is built.
+# See https://grf-labs.github.io/policytree/reference/hybrid_policy_tree.html
+
+# Set seed for replicability
+SEED = 12345
+set.seed(SEED)
+```
+
+The analysis is based on the Swiss Active Labor Market Policy Evaluation Dataset (administrative data), which can be downloaded from <https://doi.org/10.23662/FORS-DS-1203-1>. The data raw has been prepared in the file ``data_cleaning.py``, the policy scores have been estimated using the Modified Causal Forest (MCF, [Lechner 2018](https://arxiv.org/abs/1812.09487)) in the file ``data_cleaning.py``.
+
+```{r data, results='hide', message = FALSE, warning=FALSE}
+
+# Load and prepare data (add original outcome): Training sample
+outcomes_pr <- read.csv(file.path(DATA_PATH, "data_clean_pr.csv"))
+training_df <- read.csv(file.path(DATA_PATH, "iates_pr.csv"))
+outcomes_pr <- outcomes_pr %>% select(outcome) %>% slice(training_df$id_mcf+1)
+training_df <- cbind(training_df, outcomes_pr)
+
+# Evaluation sample
+outcomes_ev <- read.csv(file.path(DATA_PATH, "data_clean_ev.csv"))
+evaluation_df <- read.csv(file.path(DATA_PATH, "iates_ev.csv"))
+outcomes_ev <- outcomes_ev %>% select(outcome) %>% slice(evaluation_df$id_mcf+1)
+evaluation_df <- cbind(evaluation_df, outcomes_ev)
+
+# Create combined sensitive attribute
+training_df$sens_comb <- factor(apply(
+  training_df[c("female", "swiss")], 1, function(x) paste(x, collapse = "_")))
+evaluation_df$sens_comb <- factor(apply(
+  evaluation_df[c("female", "swiss")], 1, function(x) paste(x, collapse = "_")))
+
+# Load variable lists and mappings
+columns <- read.csv(file.path(DATA_PATH, "columns.csv"))
+mappings <- read.csv(file.path(DATA_PATH, "mappings.csv"))
+
+# Define variables
+VAR_S_NAME_ORD <- columns$S_ord[columns$S_ord > 0]
+VAR_A_NAME_ORD <- columns$A_ord[columns$A_ord > 0]
+VAR_ID_NAME <- "id_mcf"
+VAR_D_NAME <- columns$D[columns$D > 0]
+unique_D <- sort(unique(training_df[[VAR_D_NAME]]))
+unique_D_ch <- as.character(sort(unique(training_df[[VAR_D_NAME]])))
+nunique_D <- length(unique_D)
+VAR_POLSCORE_NAME <- sapply(0:(nunique_D-1), function(x) paste0(
+  "outcome_lc", x, "_un_lc_pot_eff"))
+```
+
+To get a first overview of the data, we plot the distributions of the variables of interest.
+
+```{r descriptives, fig.width=10}
+df_plot <- training_df %>% 
+  select(all_of(c(VAR_POLSCORE_NAME, VAR_A_NAME_ORD, VAR_S_NAME_ORD))) %>%
+  pivot_longer(
+    cols = all_of(c(VAR_POLSCORE_NAME, VAR_A_NAME_ORD, VAR_S_NAME_ORD)), 
+    names_to = "variable", 
+    values_to = "value")
+ggplot(
+  df_plot, aes(x = value)) +
+  geom_histogram(aes(y = after_stat(density)), colour = 'gray', bins=32, fill = "white") +
+  geom_density(alpha = 0.5) +
+  theme_minimal() +
+  facet_wrap(~variable, scales='free')
+```
+
+## MQ-Adjustment
+
+Next, the mq-adjustment is performed on both the decision variables and the policy scores.
+We find that the mq-adjustment retains the mean and standard deviation of the original
+variables but reduces the differences between the sensitive groups, as shown in the plots.
+
+```{r mq_adjustment, warning=FALSE}
+# Run mq adjustments
+datasets <- list(training = training_df, evaluation = evaluation_df)
+vars_list <- list(scores = VAR_POLSCORE_NAME, As = VAR_A_NAME_ORD)
+scores_adjusted <- list()
+for (data_name in names(datasets)) {
+  df <- datasets[[data_name]]
+  scores_adjusted[[data_name]] <- list()
+  for (vars in names(vars_list)) {
+    cols <- vars_list[[vars]]
+    scores_adjusted[[data_name]][[vars]] <- mq_adjustment(
+      vars = df[cols],
+      sens = df[VAR_S_NAME_ORD],
+      seed = SEED,
+      ties.method = TIES_METHOD
+    )
+  }
+}
+# Extract results
+scores_org <- training_df[VAR_POLSCORE_NAME]
+scores_cdf <- scores_adjusted$training$scores$vars_cdf
+scores_mq <- scores_adjusted$training$scores$vars_mq
+As_org <- training_df[VAR_A_NAME_ORD]
+As_cdf <- scores_adjusted$training$As$vars_cdf
+As_mq <- scores_adjusted$training$As$vars_mq
+sens_org <- training_df[VAR_S_NAME_ORD]
+sens_comb_org <- training_df['sens_comb']
+
+scores_org_out <- evaluation_df[VAR_POLSCORE_NAME]
+scores_cdf_out <- scores_adjusted$evaluation$scores$vars_cdf
+scores_mq_out <- scores_adjusted$evaluation$scores$vars_mq
+As_org_out <- evaluation_df[VAR_A_NAME_ORD]
+As_cdf_out <- scores_adjusted$evaluation$As$vars_cdf
+As_mq_out <- scores_adjusted$evaluation$As$vars_mq
+sens_org_out <- evaluation_df[VAR_S_NAME_ORD]
+sens_comb_org_out <- evaluation_df['sens_comb']
+
+# Put into one df
+training_fair_df <- cbind(training_df, scores_cdf, scores_mq, As_cdf, As_mq)
+evaluation_fair_df <- cbind(evaluation_df, scores_cdf_out, scores_mq_out, As_cdf_out, As_mq_out)
+
+# Print means and standard deviations
+table_scores <- data.frame(
+  scores_mean = colMeans(training_df[VAR_POLSCORE_NAME]),
+  scores_cdf_mean = colMeans(scores_cdf),
+  scores_mq_mean = colMeans(scores_mq),
+  scores_std = sqrt(diag(var(training_df[VAR_POLSCORE_NAME]))),
+  scores_cdf_std = sqrt(diag(var(scores_cdf))),
+  scores_mq_std = sqrt(diag(var(scores_mq))))
+knitr::kable(
+  table_scores , digits=2,
+  caption="Means and standard deviations of policy scores before and after adjustment")
+
+table_A <- data.frame(
+    As_mean = colMeans(training_df[VAR_A_NAME_ORD]),
+    As_cdf_mean = colMeans(As_cdf),
+    As_mq_mean = colMeans(As_mq),
+    As_std = sqrt(diag(var(training_df[VAR_A_NAME_ORD]))),
+    As_cdf_std = sqrt(diag(var(As_cdf))),
+    As_mq_std = sqrt(diag(var(As_mq))))
+knitr::kable(
+  table_A, digits=2,
+  caption="Means and standard deviations of decision variables before and after adjustment")
+```
+
+```{r mq_adjustment_plot, warning=FALSE, fig.width=9, fig.height=3.5}
+# Plot distributions of scores and A for combinations of S
+vars_to_plot <- c(VAR_POLSCORE_NAME, VAR_A_NAME_ORD)
+vars_to_plot <- c(vars_to_plot, paste0(vars_to_plot, "_mq"))
+vars_to_plot_sens <- c(vars_to_plot, 'sens_comb')
+
+map_prog <- setNames(
+  as.character(mappings[!is.na(mappings[VAR_D_NAME]),'X']),
+  as.character(mappings[!is.na(mappings[VAR_D_NAME]), VAR_D_NAME]))
+
+df_fullplot <- training_fair_df[, vars_to_plot_sens] %>% pivot_longer(all_of(vars_to_plot))
+df_fullplot <- df_fullplot %>% mutate(
+  type = if_else(str_ends(name, "_mq"), "Adjusted variable", "Original variable"),
+  name = str_remove(name, "_mq"),
+  program_number = str_match(name, "outcome_lc([0-9]+)_un_lc_pot_eff")[, 2],
+  name = if_else(
+    !is.na(program_number), paste0("Policy score (", map_prog[program_number], ")"), name),
+  name = if_else(name == "age", "Age", name),
+  name = if_else(name == "past_income", "Past earnings", name),
+  name = if_else(name == "qual_degree", "Degree", name)
+)
+
+df_fullplot <- df_fullplot %>% mutate(name_type = paste0(name, "\n(", type, ")"))
+df_fullplot$type <- factor(df_fullplot$type, levels = c("Original variable", "Adjusted variable"))
+levs <- c(
+  sort(unique(df_fullplot$name_type[str_ends(df_fullplot$name_type, "\\(Original variable\\)")])),
+  sort(unique(df_fullplot$name_type[str_ends(df_fullplot$name_type, "\\(Adjusted variable\\)")]))
+)
+df_fullplot$name_type <- factor(df_fullplot$name_type, levels = levs)
+
+df_fullplot_main <- df_fullplot[
+  is.na(df_fullplot$program_number) | df_fullplot$program_number == 0,]
+df_fullplot_appendix <- df_fullplot[
+  !is.na(df_fullplot$program_number) & df_fullplot$program_number > 0,]
+
+histograms_cleaning <- ggplot(df_fullplot_main, aes(x = value, fill = sens_comb)) +
+  geom_histogram(aes(y = after_stat(density)), alpha = 0.5, position = "identity", bins = 32) +
+  labs(x=NULL, y = "Density", fill="Sensitive attribue:") +
+  theme_minimal() +
+  facet_wrap(~name_type, scales = "free", ncol = 4) +
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+  scale_fill_discrete(
+    labels = c(
+      "0_0" = "Foreign men", "1_0" = "Foreign women",
+      "0_1" = "Swiss men", "1_1" = "Swiss women")) +
+  theme(legend.position = "bottom", text = element_text(size = 10))
+plot(histograms_cleaning)
+
+histograms_cleaning_appendix <- ggplot(df_fullplot_appendix, aes(x = value, fill = sens_comb)) +
+  geom_histogram(aes(y = after_stat(density)), alpha = 0.5, position = "identity", bins = 32) +
+  labs(x=NULL, y = "Density", fill="Sensitive attribue:") +
+  theme_minimal() +
+  facet_wrap(~name_type, scales = "free", ncol = 5) +
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+  scale_fill_discrete(
+    labels = c(
+      "0_0" = "Foreign men", "1_0" = "Foreign women",
+      "0_1" = "Swiss men", "1_1" = "Swiss women")) +
+  theme(legend.position = "bottom", text = element_text(size = 10))
+plot(histograms_cleaning_appendix)
+```
+
+
+## Benchmark Policies
+
+The analysis of the welfare-interpretability-fairness trade-off starts by analyzing
+several benchmark policies. This includes the observed assignments and blackbox
+assignments according to the largest policy score. By using the mq-adjusted policy
+scores we can obtain a fair blackbox assignment. In addition, we can obtain a
+completely fair benchmark (according to our definition) which assigns all individuals
+to the same treatment.
+
+```{r observed, warning=FALSE}
+# Create functions for evaluation of assignments
+# Welfare
+compute_welfare <- function(Dstar, scores){
+  outcomes <- mapply(function(idx, row) scores[
+    row, idx], Dstar, seq_along(Dstar))
+  return(mean(outcomes))
+}
+# Cramer's V
+compute_cramerv <- function(Dstar, sens_comb){
+  cramerV(table(Dstar, sens_comb))
+}
+# Chi2 test
+compute_chi2 <- function(Dstar, sens_comb){
+  round(chisq.test(table(Dstar, sens_comb))$p.value, 8)
+}
+# Bayes Factor
+compute_BF <- function(Dstar, sens_comb){
+  round(extractBF(contingencyTableBF(table(
+    Dstar, sens_comb), sampleType = "indepMulti", fixedMargin = "cols"), onlybf=TRUE, logbf=TRUE), 8)
+}
+# Program frequencies
+compute_prog_freq <- function(Dstar, levels=unique_D){
+  prop.table(table(factor(Dstar, levels = unique_D)))
+}
+
+# Observed, blackbox and all-in-one assignments for training and evaluation sample
+results_list <- list()
+datasets <- list(training = training_fair_df, evaluation = evaluation_fair_df)
+rows <- c("observed", "blackbox", "blackboxfair", "allin1")
+cols <- c("Interp.", "Welfare", "CramerV", "chi2 pval", "log(BF)", unique_D_ch)
+for (set_name in names(datasets)) {
+  df <- datasets[[set_name]]
+  res <- matrix(NA, nrow = length(rows), ncol = length(cols),
+                dimnames = list(rows, cols))
+  # Observed assignment
+  D_obs <- df[[VAR_D_NAME]]
+  res["observed", ] <- c(
+    FALSE,
+    mean(df$outcome),
+    compute_cramerv(D_obs, df$sens_comb),
+    compute_chi2(D_obs, df$sens_comb),
+    compute_BF(D_obs, df$sens_comb),
+    compute_prog_freq(D_obs)
+  )
+  # Blackbox assignment
+  D_blackbox <- apply(df[VAR_POLSCORE_NAME], 1, which.max)
+  res["blackbox", ] <- c(
+    FALSE,
+    compute_welfare(D_blackbox, df[VAR_POLSCORE_NAME]),
+    compute_cramerv(D_blackbox, df$sens_comb),
+    compute_chi2(D_blackbox, df$sens_comb),
+    compute_BF(D_blackbox, df$sens_comb),
+    compute_prog_freq(D_blackbox - 1)
+  )
+  # Fair blackbox assignment
+  D_blackboxfair <- apply(df[paste0(VAR_POLSCORE_NAME,"_mq")], 1, which.max)
+  res["blackboxfair", ] <- c(
+    FALSE,
+    compute_welfare(D_blackboxfair, df[VAR_POLSCORE_NAME]),
+    compute_cramerv(D_blackboxfair, df$sens_comb),
+    compute_chi2(D_blackboxfair, df$sens_comb),
+    compute_BF(D_blackboxfair, df$sens_comb),
+    compute_prog_freq(D_blackboxfair - 1)
+  )
+  # All-in-one benchmark
+  best_program <- which.max(colMeans(df[VAR_POLSCORE_NAME]))
+  D_allin1 <- rep(best_program, nrow(df))
+  res["allin1", ] <- c(
+    TRUE,
+    compute_welfare(D_allin1, df[VAR_POLSCORE_NAME]),
+    0,
+    1,
+    log(0),
+    compute_prog_freq(D_allin1 - 1)
+  )
+  
+  results_list[[set_name]] <- as.data.frame(res)
+}
+# Print results
+knitr::kable(results_list[['training']], digits=3, caption="Training sample")
+knitr::kable(results_list[['evaluation']], digits=3, caption="Evaluation sample")
+```
+
+## Policy Trees
+
+Next, we assess policy tree assignments for different adjustment scenarios:
+- No adjustment
+- Adjustment of decision variables
+- Adjustment of policy scores
+- Adjustment of decision variables and policy scores
+Note that policies involving adjustments of the decision variables are no longer
+interpretable when using the standard policy trees.
+
+```{r policytrees, warning=FALSE, fig.width=6, fig.height=6}
+# Determine tree parameters besides depth:
+# split.step:  To avoid lengthy computations, we determine a maximum of 100
+# evaluation points for continuous variables. Hence, we set split.step = n/100
+splitstep <- round(nrow(training_df)/100, 0)
+# We set the minimum node size to 0.1*(n/depth):
+minnodesize <- round(0.1*(nrow(training_df)/PT_DEPTH), 0)
+# Determine tree type
+if(PT_DEPTH == PT_SEARCH_DEPTH){
+  tree_FUN <- function(
+    X, Gamma, depth = PT_DEPTH, split.step = splitstep, 
+    min.node.size = minnodesize, verbose = TRUE){
+    policy_tree(
+      X, Gamma, depth = depth, split.step = split.step,
+      min.node.size = min.node.size, verbose=verbose)
+  }
+}else{
+  tree_FUN <- function(
+    X, Gamma, depth = PT_DEPTH, search.depth = PT_SEARCH_DEPTH,
+    split.step = splitstep, min.node.size = minnodesize, verbose = TRUE){
+    hybrid_policy_tree(
+      X, Gamma, depth = depth, search.depth = search.depth,
+      split.step = split.step, min.node.size = min.node.size, verbose=verbose)
+  }
+}
+# Run and evaluate policy trees for different adjustment scenarios
+opt_tree_list <- list()
+data_list <- list(
+  pt_no_adjustments = list(
+    exp = TRUE, As = colnames(As_org), scores = colnames(scores_org)),
+  pt_adjust_A = list(
+    exp = FALSE, As = colnames(As_mq), scores = colnames(scores_org)),
+  pt_adjust_score = list(
+    exp = TRUE, As = colnames(As_org), scores = colnames(scores_mq)),
+  pt_adjust_A_score = list(
+    exp = FALSE, As = colnames(As_mq), scores = colnames(scores_mq)))
+for(set_name in names(data_list)) {
+  opt_tree <- tree_FUN(
+    training_fair_df[data_list[[set_name]]$As],
+    training_fair_df[data_list[[set_name]]$scores])
+  opt_tree_list[[set_name]] <- opt_tree
+  Dstar_opt <- predict(opt_tree, training_fair_df[data_list[[set_name]]$As])
+  Dstar_opt_out <- predict(opt_tree, evaluation_fair_df[data_list[[set_name]]$As])
+  results_list$training[set_name, ] <- c(
+    data_list[[set_name]]$exp,
+    compute_welfare(Dstar_opt, scores_org),
+    compute_cramerv(Dstar_opt, sens_comb_org$sens_comb),
+    compute_chi2(Dstar_opt, sens_comb_org$sens_comb),
+    compute_BF(Dstar_opt, sens_comb_org$sens_comb),
+    compute_prog_freq(Dstar_opt - 1))
+  results_list$evaluation[set_name, ] <- c(
+    data_list[[set_name]]$exp,
+    compute_welfare(Dstar_opt_out, scores_org_out),
+    compute_cramerv(Dstar_opt_out, sens_comb_org_out$sens_comb),
+    compute_chi2(Dstar_opt_out, sens_comb_org_out$sens_comb),
+    compute_BF(Dstar_opt_out, sens_comb_org_out$sens_comb),
+    compute_prog_freq(Dstar_opt_out - 1))
+}
+# Print results
+knitr::kable(results_list[['training']], digits=3, caption="Training sample")
+knitr::kable(results_list[['evaluation']], digits=3, caption="Evaluation sample")
+# Plot the trees
+lab <- mappings[!is.na(mappings[VAR_D_NAME]), 'X']
+plot(opt_tree_list[['pt_no_adjustments']], leaf.labels=lab)
+plot(opt_tree_list[['pt_adjust_A']], leaf.labels=lab)
+plot(opt_tree_list[['pt_adjust_score']], leaf.labels=lab)
+plot(opt_tree_list[['pt_adjust_A_score']], leaf.labels=lab)
+```
+
+## Probabilistic Split Trees
+
+To regain interpretability of policy trees with adjusted decision variables,
+we can fit probabilisty split trees. We obtain one tree per sensitive group.
+In these trees there may occur probabilistic splits, meaning that individuals
+at the splitting threshold may proceed in both child nodes with a certain probability.
+These probabilistic splits are necessary to break the dependence of the resulting
+assignments with the sensitive attributes.
+
+<style>
+  .superbigimage{
+      overflow-x:scroll;
+      white-space: nowrap;
+  }
+
+  .superbigimage img{
+     max-width: none;
+  }
+
+
+</style>
+
+```{r probsplittrees1, warning=FALSE}
+# Fit probabilistic split tree
+data_list2 <- list(
+  pst_adjust_A = list(exp = TRUE, adjust_scores = FALSE),
+  pst_adjust_A_score = list(exp = TRUE, adjust_scores = TRUE))
+for(set_name in names(data_list2)) {
+  opt_tree <- prob_split_tree(
+    As_org,
+    scores_org,
+    sens_org,
+    adjust_scores=data_list2[[set_name]]$adjust_scores,
+    seed=SEED,
+    ties.method=TIES_METHOD,
+    depth=PT_DEPTH,
+    search.depth=PT_SEARCH_DEPTH,
+    split.step=splitstep,
+    min.node.size=minnodesize)
+  opt_tree_list[[set_name]] <- opt_tree
+  Dstar_opt <- predict(opt_tree, As_org, sens_org, seed=SEED)
+  Dstar_opt_out <- predict(opt_tree, As_org_out, sens_org_out, seed=SEED)
+  results_list$training[set_name, ] <- c(
+    data_list2[[set_name]]$exp,
+    compute_welfare(Dstar_opt, scores_org),
+    compute_cramerv(Dstar_opt, sens_comb_org$sens_comb),
+    compute_chi2(Dstar_opt, sens_comb_org$sens_comb),
+    compute_BF(Dstar_opt, sens_comb_org$sens_comb),
+    compute_prog_freq(Dstar_opt - 1))
+  results_list$evaluation[set_name, ] <- c(
+    data_list2[[set_name]]$exp,
+    compute_welfare(Dstar_opt_out, scores_org_out),
+    compute_cramerv(Dstar_opt_out, sens_comb_org_out$sens_comb),
+    compute_chi2(Dstar_opt_out, sens_comb_org_out$sens_comb),
+    compute_BF(Dstar_opt_out, sens_comb_org_out$sens_comb),
+    compute_prog_freq(Dstar_opt_out - 1))
+}
+# Print results
+knitr::kable(results_list[['training']], digits=3, caption="Training sample")
+knitr::kable(results_list[['evaluation']], digits=3, caption="Evaluation sample")
+```
+
+<div class="superbigimage">
+```{r probsplittrees2, warning=FALSE, fig.width=12}
+# Plot the trees
+plot(opt_tree_list[['pst_adjust_A']], sens_names=VAR_S_NAME_ORD, leaf.labels=lab)
+```
+</div>
+
+<div class="superbigimage">
+```{r probsplittrees3, warning=FALSE, fig.width=12}
+plot(opt_tree_list[['pst_adjust_A_score']], sens_names=VAR_S_NAME_ORD, leaf.labels=lab)
+```
+</div>
+
+```{r probsplittrees4, warning=FALSE, fig.height=10}
+# Combine to one tree by manually adjusting dot string
+dot_string_total <- ""
+j <- 0
+for(i in names(opt_tree_list[['pst_adjust_A']])){
+  j <- j + 1
+  dot_string2 <- plot(opt_tree_list[['pst_adjust_A']][[i]], leaf.labels=lab)[["x"]][["diagram"]]
+  dot_string2 <- gsub("\n(\\d)", paste0("\n",j,"\\1"), dot_string2)
+  dot_string2 <- gsub("-> (\\d)", paste0("-> ",j,"\\1"), dot_string2)
+  dot_string2 <- sub("digraph nodes { \n node [shape=box] ;\n", "", dot_string2, fixed = TRUE)
+  dot_string2 <- sub("\n}", "", dot_string2, fixed = TRUE)
+  dot_string2 <- gsub(
+    "[labeldistance=2.5, labelangle=45, headlabel=\"True\"]", "", dot_string2, fixed = TRUE)
+  dot_string2 <- gsub(
+    "[labeldistance=2.5, labelangle=-45, headlabel=\"False\"]", "", dot_string2, fixed = TRUE)
+  dot_string_total <- paste0(dot_string_total, dot_string2)
+}
+dot_string <- paste0("
+      digraph combined {
+        rankdir=LR;
+        node [shape=box];
+        top [label=\"female = 1\", shape=ellipse, style=filled, fillcolor=lightblue];
+        top2 [label=\"swiss = 1\", shape=ellipse, style=filled, fillcolor=lightblue];
+        top3 [label=\"swiss = 1\", shape=ellipse, style=filled, fillcolor=lightblue];
+        ", dot_string_total, "
+        top -> top2 [labeldistance=3, labelangle=-30, headlabel='True'];
+        top -> top3 [labeldistance=3, labelangle=30, headlabel='False'];
+        top2 -> ", 10, ";
+        top2 -> ", 20, ";
+        top3 -> ", 30, ";
+        top3 -> ", 40, ";
+      }
+    ")
+dot_string <- gsub("qual_degree", "degree", dot_string, fixed = TRUE)
+dot_string <- gsub("past_income", "past income", dot_string, fixed = TRUE)
+DiagrammeR::grViz(dot_string)
+```
+
+## Partial Adjustments
+
+One may only partially adjust the variables to further analyse the trade-off
+between welfare and fairness. This is achieved by a linear combination of adjusted
+and original variables for different weights between 0 and 1. The steps are as follows:
+
+1. Get grid of weights from 0 to 1 by 0.1 steps
+2. Get weighted combinations of policy scores and decison variables
+3. Run policy trees
+4. Compute welfare and fairness measures and plot
+
+```{r partial, warning=FALSE, fig.width=7.5, fig.height=2.5}
+# Define weights
+weights <- seq(0,1,0.1)
+inv_weights <- 1 - weights
+As_weight <- mapply(
+  function(w, iw) round(As_mq * w + As_org * iw, 0), weights, inv_weights, SIMPLIFY = FALSE)
+As_weight_out <- mapply(
+  function(w, iw) round(As_mq_out * w + As_org_out * iw, 0), weights, inv_weights, SIMPLIFY = FALSE)
+scores_weight <- mapply(
+  function(w, iw) scores_mq * w + scores_org * iw, weights, inv_weights, SIMPLIFY = FALSE)
+As_org_list <- replicate(length(weights), As_org, simplify = FALSE)
+As_org_out_list <- replicate(length(weights), As_org_out, simplify = FALSE)
+scores_org_list <- replicate(length(weights), scores_org, simplify = FALSE)
+# Setup scenarios
+scenarios <- list(
+  clean_As = list(As = As_weight, scores = scores_org_list, As_out = As_weight_out),
+  clean_Scores = list(As = As_org_list, scores = scores_weight, As_out = As_org_out_list),
+  clean_Scores_As = list(As = As_weight, scores = scores_weight, As_out = As_weight_out)
+)
+# Compute policy trees and welfare/fairness measures
+rows <- list()
+opt_tree_weight <- list()
+for(scen in names(scenarios)){
+  As_list <- scenarios[[scen]]$As
+  Scores_list <- scenarios[[scen]]$scores
+  As_out_list <- scenarios[[scen]]$As_out
+  opt_tree_weight[[scen]] <- list()
+  for(i in seq_along(weights)){
+    opt_tree_weight[[scen]][[i]] <- tree_FUN(As_list[[i]], Scores_list[[i]])
+    Dstar <- predict(opt_tree_weight[[scen]][[i]], As_out_list[[i]])
+    rows[[length(rows) + 1]] <- data.frame(
+      Weight = weights[i], 
+      Metric='Welfare', 
+      Scenario=scen, 
+      Value=compute_welfare(Dstar, scores_org_out))
+    rows[[(length(rows) + 1)]] <- data.frame(
+      Weight = weights[i], 
+      Metric='CramerV', 
+      Scenario=scen, 
+      Value=compute_cramerv(Dstar, sens_comb_org_out$sens_comb)[[1]])
+  }
+}
+results_partial <- do.call(rbind, rows)
+# Plot
+p1 <- ggplot(
+  results_partial[results_partial$Metric == "Welfare", ],
+  aes(x = Weight, y = Value, color = Scenario, linetype= Scenario)) +
+  geom_line(linewidth=0.7) +
+  labs(
+    title = "Welfare", x = "Weight of adjusted variable",
+    color = "Scenario:", linetype= "Scenario:") +
+  ylim(17.8, 18) + 
+  theme_minimal() +
+  scale_color_discrete(
+    labels = c(
+      expression(paste("Adjust ", A[i])), expression(paste("Adjust ", Gamma["d,i"])),
+      expression(paste("Adjust ", A[i], " and ", Gamma["d,i"])))) +
+  scale_linetype_discrete(
+    labels = c(
+      expression(paste("Adjust ", A[i])), expression(paste("Adjust ", Gamma["d,i"])),
+      expression(paste("Adjust ", A[i], " and ", Gamma["d,i"]))))
+p2 <- ggplot(
+  results_partial[results_partial$Metric == "CramerV", ],
+  aes(x = Weight, y = Value, color = Scenario, linetype= Scenario)) +
+  geom_line(linewidth=0.7) +
+  labs(
+    title = "Fairness (Cramér's V)", x = "Weight of adjusted variable",
+    color = "Scenario:", linetype= "Scenario:") +
+  ylim(0, 0.3) + 
+  theme_minimal() +
+  scale_color_discrete(
+    labels = c(
+      expression(paste("Adjust ", A[i])), expression(paste("Adjust ", Gamma["d,i"])),
+      expression(paste("Adjust ", A[i], " and ", Gamma["d,i"])))) +
+  scale_linetype_discrete(
+    labels = c(
+      expression(paste("Adjust ", A[i])), expression(paste("Adjust ", Gamma["d,i"])),
+      expression(paste("Adjust ", A[i], " and ", Gamma["d,i"]))))
+plot_combined <- (p1 + p2) + plot_layout(guides = "collect")
+plot_combined
+```
+
+## Winners and Losers
+
+Finally, we can assess the winners and losers of the probabilistic tree assignments
+compared to unadjusted policy tree assignments. The "winners" and "loser" groups
+are determined by kmeans clustering, with the number of groups determined by the
+Silhouette score with the restriction of a minimum cluster size of 1% of the observations.
+
+```{r kmeans, warning=FALSE}
+# Prepare data
+individual_welfare <- function(Dstar, scores) {
+  scores[cbind(seq_along(Dstar), Dstar)]
+}
+data_df <- cbind(
+  evaluation_df[, columns$X_ord[columns$X_ord > 0]],
+  fastDummies::dummy_cols(
+    data.frame(lapply(evaluation_df[, columns$X_unord[columns$X_unord > 0]], as.character)),
+    remove_selected_columns = TRUE
+  ),
+  welfare_adjusted = individual_welfare(
+    predict(tree = opt_tree_list[["pst_adjust_A"]], A = As_org_out, sens = sens_org_out),
+    scores_org_out
+  ),
+  welfare_unadjusted = individual_welfare(
+    predict(opt_tree_list[["pt_no_adjustments"]], As_org_out),
+    scores_org_out
+  )
+)
+# Compute the difference between actual and reference welfare.
+data_df$welfare_diff <- data_df$welfare_adjusted - data_df$welfare_unadjusted
+welfare_diff_matrix <- matrix(data_df$welfare_diff, ncol = 1)
+# Determine optimal number of clusters using Silhouette score
+dist_matrix <- stats::dist(welfare_diff_matrix)
+min_cluster_size <- ceiling(nrow(data_df) / 100)
+sil_width <- sapply(2:8, function(k){
+  km <- kmeans(welfare_diff_matrix, centers = k, nstart = 10)
+  ss <- silhouette(km$cluster, dist_matrix)
+  if(min(km$size) > min_cluster_size){
+    mean(ss[, 3])
+  }else{
+    0
+  }
+})
+n_clusters <- which.max(sil_width) + 1
+# Get clusters ordered by cluster mean
+km <- kmeans(welfare_diff_matrix, centers = n_clusters, nstart = 10)
+ordered_clusters <- order(km$centers)
+cluster_map <- setNames(seq_along(ordered_clusters), ordered_clusters)
+data_df$cluster_ids <- cluster_map[as.character(km$cluster)]
+# Get variables means
+df_grouped_means <- data_df %>%
+  group_by(cluster_ids) %>%
+  summarise(n = n(), across(where(is.numeric),\(x) mean(x, na.rm = TRUE)))  %>%
+  pivot_longer(cols = -cluster_ids, names_to = "variable", values_to = "mean") %>%
+  pivot_wider(names_from = cluster_ids, values_from = mean) %>%
+  arrange(factor(variable, levels = c("welfare_diff", setdiff(variable, "welfare_diff")))) %>% 
+  mutate(across(where(is.numeric), round, 2))
+# Generale meaningful cluster labels
+generate_cluster_labels <- function(means) {
+  labels <- character(length(means))
+  gains <- means > 0
+  losses <- means < 0
+  zeros <- means == 0
+  intensity_labels <- c("Strong", "Moderate", "Mild", "Slight")
+  # Gains
+  if(sum(gains) > 0){
+    ranks <- rank(-means[gains], ties.method = "first")
+    intensity <- if(sum(gains) > 1) paste(intensity_labels[seq_along(ranks)], "Gain") else "Gain"
+    labels[gains] <- intensity[order(ranks)]
+  }
+  # Losses
+  if(sum(losses) > 0){
+    ranks <- rank(means[losses], ties.method = "first")
+    intensity <- if(sum(losses) > 1) paste(intensity_labels[seq_along(ranks)], "Loss") else "Loss"
+    labels[losses] <- intensity[order(ranks)]
+  }
+  # No change
+  labels[zeros] <- "No Change"
+  return(labels)
+}
+colnames(df_grouped_means) <- c("Variable", generate_cluster_labels(
+  round(as.numeric(subset(df_grouped_means, variable == 'welfare_diff')[, -1]),2)))
+# Print
+knitr::kable(
+  df_grouped_means,
+  caption="Covariate means of k-means clusters")
+```
