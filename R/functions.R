@@ -6,6 +6,9 @@
 #' @param sens Matrix or data.frame of sensitive attributes. Must have the same number of rows as `vars`.
 #' @param seed Integer scalar for reproducible random tie-breaking.
 #' @param ties.method Character string for ranking ties. One of "random", "average", "first", "last", "max", "min".
+#' @param quantile.type An integer from \code{1} to \code{9}, or the character string \code{"reshuffled"} selecting the quantile
+#' algorithms. See \code{\link[stats]{quantile}} for details. \code{"reshuffled"} provides an alternative algorithm that keeps
+#' the exact moments of the original distribution.
 #'
 #' @return A list with two data.frames:
 #'   \describe{
@@ -18,7 +21,8 @@ mq_adjustment <- function(
     vars,
     sens,
     seed = 123456,
-    ties.method = "random"
+    ties.method = "random",
+    quantile.type = 4
 ) {
   #-- Input checks --#
   # Seed
@@ -46,7 +50,6 @@ mq_adjustment <- function(
     stop("`sens` must have the same number of rows as `vars`.")
   }
   #-- Main computation --#
-  set.seed(seed)
   no_of_vars <- ncol(vars)
   no_of_obs <- nrow(vars)
   vars_mq <- vars
@@ -55,6 +58,7 @@ mq_adjustment <- function(
   groups <- split(seq_len(n), group_keys)
   # Compute empirical CDF (relative rank) within each sensitive group
   for (col in seq_len(no_of_vars)) {
+    set.seed(seed)
     vars_col <- vars[[col]]
     quantiles <- numeric(no_of_obs)
     for (key in names(groups)) {
@@ -62,14 +66,23 @@ mq_adjustment <- function(
       quantiles[idx] <- rank(vars_col[idx], ties.method=ties.method)/length(idx)
     }
     vars_cdf[[col]] <- quantiles
-    vars_col_sorted <- sort(vars_col)
-    indices <- rank(quantiles, ties.method = ties.method)
-    vars_mq[[col]] <- vars_col_sorted[indices]
+    if(is.numeric(quantile.type) && quantile.type %% 1 == 0 && quantile.type >= 1 && quantile.type <= 9){
+      vars_mq[[col]] <- quantile(x=vars_col, probs=quantiles, type=quantile.type)
+    } else if (quantile.type=="reshuffled") {
+      vars_col_sorted <- sort(vars_col)
+      indices <- rank(quantiles, ties.method = ties.method)
+      vars_mq[[col]] <- vars_col_sorted[indices]
+    } else {
+      stop(paste0(
+        "`quantile.type` must be integer between 1 and 9, or a",
+        " character string `reshuffled`."))
+    }
   }
   colnames(vars_mq) <- paste0(colnames(vars_mq), "_mq")
   colnames(vars_cdf)  <- paste0(colnames(vars_cdf),  "_cdf")
   return(list(vars_cdf = vars_cdf, vars_mq = vars_mq))
 }
+
 
 
 #' Simulate Artificial Fairness Data

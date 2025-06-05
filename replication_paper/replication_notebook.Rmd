@@ -134,8 +134,13 @@ for (data_name in names(datasets)) {
       vars = df[cols],
       sens = df[VAR_S_NAME_ORD],
       seed = SEED,
-      ties.method = TIES_METHOD
+      ties.method = TIES_METHOD,
+      quantile.type = 4
     )
+    if(vars=="As"){
+      scores_adjusted[[data_name]][[vars]]$vars_mq <- round(
+        scores_adjusted[[data_name]][[vars]]$vars_mq)
+    }
   }
 }
 # Extract results
@@ -379,7 +384,9 @@ if(PT_DEPTH == PT_SEARCH_DEPTH){
 # Run and evaluate policy trees for different adjustment scenarios
 opt_tree_list <- list()
 data_list <- list(
-  pt_no_adjustments = list(
+  pt_unadj_inclS = list(
+    exp = TRUE, As = colnames(cbind(As_org, sens_org)), scores = colnames(scores_org)),
+  pt_unadj_exclS = list(
     exp = TRUE, As = colnames(As_org), scores = colnames(scores_org)),
   pt_adjust_A = list(
     exp = FALSE, As = colnames(As_mq), scores = colnames(scores_org)),
@@ -414,7 +421,8 @@ knitr::kable(results_list[['training']], digits=3, caption="Training sample")
 knitr::kable(results_list[['evaluation']], digits=3, caption="Evaluation sample")
 # Plot the trees
 lab <- mappings[!is.na(mappings[VAR_D_NAME]), 'X']
-plot(opt_tree_list[['pt_no_adjustments']], leaf.labels=lab)
+plot(opt_tree_list[['pt_unadj_inclS']], leaf.labels=lab)
+plot(opt_tree_list[['pt_unadj_exclS']], leaf.labels=lab)
 plot(opt_tree_list[['pt_adjust_A']], leaf.labels=lab)
 plot(opt_tree_list[['pt_adjust_score']], leaf.labels=lab)
 plot(opt_tree_list[['pt_adjust_A_score']], leaf.labels=lab)
@@ -499,9 +507,9 @@ plot(opt_tree_list[['pst_adjust_A_score']], sens_names=VAR_S_NAME_ORD, leaf.labe
 # Combine to one tree by manually adjusting dot string
 dot_string_total <- ""
 j <- 0
-for(i in names(opt_tree_list[['pst_adjust_A']])){
+for(i in names(opt_tree_list[['pst_adjust_A_score']])){
   j <- j + 1
-  dot_string2 <- plot(opt_tree_list[['pst_adjust_A']][[i]], leaf.labels=lab)[["x"]][["diagram"]]
+  dot_string2 <- plot(opt_tree_list[['pst_adjust_A_score']][[i]], leaf.labels=lab)[["x"]][["diagram"]]
   dot_string2 <- gsub("\n(\\d)", paste0("\n",j,"\\1"), dot_string2)
   dot_string2 <- gsub("-> (\\d)", paste0("-> ",j,"\\1"), dot_string2)
   dot_string2 <- sub("digraph nodes { \n node [shape=box] ;\n", "", dot_string2, fixed = TRUE)
@@ -529,7 +537,7 @@ dot_string <- paste0("
       }
     ")
 dot_string <- gsub("qual_degree", "degree", dot_string, fixed = TRUE)
-dot_string <- gsub("past_income", "past income", dot_string, fixed = TRUE)
+dot_string <- gsub("past_income", "past earnings", dot_string, fixed = TRUE)
 DiagrammeR::grViz(dot_string)
 ```
 
@@ -540,7 +548,7 @@ between welfare and fairness. This is achieved by a linear combination of adjust
 and original variables for different weights between 0 and 1. The steps are as follows:
 
 1. Get grid of weights from 0 to 1 by 0.1 steps
-2. Get weighted combinations of policy scores and decison variables
+2. Get weighted combinations of policy scores and decision variables
 3. Run policy trees
 4. Compute welfare and fairness measures and plot
 
@@ -599,12 +607,12 @@ p1 <- ggplot(
   theme_minimal() +
   scale_color_discrete(
     labels = c(
-      expression(paste("Adjust ", A[i])), expression(paste("Adjust ", Gamma["d,i"])),
-      expression(paste("Adjust ", A[i], " and ", Gamma["d,i"])))) +
+      expression(paste("Adjust ", A)), expression(paste("Adjust ", Gamma["d"])),
+      expression(paste("Adjust ", A, " and ", Gamma["d"])))) +
   scale_linetype_discrete(
     labels = c(
-      expression(paste("Adjust ", A[i])), expression(paste("Adjust ", Gamma["d,i"])),
-      expression(paste("Adjust ", A[i], " and ", Gamma["d,i"]))))
+      expression(paste("Adjust ", A)), expression(paste("Adjust ", Gamma["d"])),
+      expression(paste("Adjust ", A, " and ", Gamma["d"]))))
 p2 <- ggplot(
   results_partial[results_partial$Metric == "CramerV", ],
   aes(x = Weight, y = Value, color = Scenario, linetype= Scenario)) +
@@ -645,11 +653,11 @@ data_df <- cbind(
     remove_selected_columns = TRUE
   ),
   welfare_adjusted = individual_welfare(
-    predict(tree = opt_tree_list[["pst_adjust_A"]], A = As_org_out, sens = sens_org_out),
+    predict(tree = opt_tree_list[["pst_adjust_A_score"]], A = As_org_out, sens = sens_org_out),
     scores_org_out
   ),
   welfare_unadjusted = individual_welfare(
-    predict(opt_tree_list[["pt_no_adjustments"]], As_org_out),
+    predict(opt_tree_list[['pt_unadj_exclS']], As_org_out),
     scores_org_out
   )
 )

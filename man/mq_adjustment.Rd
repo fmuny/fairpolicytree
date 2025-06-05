@@ -4,7 +4,13 @@
 \alias{mq_adjustment}
 \title{Marginal Quantile-Adjustment for Fair and Interpretable Policy Learning}
 \usage{
-mq_adjustment(vars, sens, seed = 123456, ties.method = "random")
+mq_adjustment(
+  vars,
+  sens,
+  seed = 123456,
+  ties.method = "random",
+  quantile.type = 4
+)
 }
 \arguments{
 \item{vars}{Numeric matrix or data.frame of variables to be adjusted (observations in rows, variables in columns).}
@@ -14,6 +20,10 @@ mq_adjustment(vars, sens, seed = 123456, ties.method = "random")
 \item{seed}{Integer scalar for reproducible random tie-breaking.}
 
 \item{ties.method}{Character string for ranking ties. One of "random", "average", "first", "last", "max", "min".}
+
+\item{quantile.type}{An integer from \code{1} to \code{9}, or the character string \code{"reshuffled"} selecting the quantile
+algorithms. See \code{\link[stats]{quantile}} for details. \code{"reshuffled"} provides an alternative algorithm that keeps
+the exact moments of the original distribution.}
 }
 \value{
 A list with two data.frames:
