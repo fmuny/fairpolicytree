@@ -24,7 +24,9 @@ library(kableExtra)
 library(cluster)
 
 # Data source path
-DATA_PATH <- "Q:/SEW/Projekte/NFP77/BeLeMaMu.Fairness/Data_fair/cleaned"
+DATA_PATH <- "D:/Fabian_Muny/Data_fair/cleaned"
+SET_STR = "05_application"
+OUTCOME = "outcome0131"
 
 # Method for ties in fairness adjustments
 # One of "average", "first", "last", "random", "max", "min"
@@ -45,10 +47,10 @@ set.seed(SEED)
 # Save outputs
 save <- TRUE
 RESULTS_PATH <- paste0(
-  "Q:/SEW/Projekte/NFP77/BeLeMaMu.Fairness/Results_fair/plots_tables/")
+  "D:/Fabian_Muny/Results_fair/")
 if(save){
   folder_name <- format(Sys.Date(), "%Y-%m-%d")
-  RESULTS_PATH <- paste0(RESULTS_PATH, folder_name, "_depth", PT_DEPTH, "/")
+  RESULTS_PATH <- paste0(RESULTS_PATH, folder_name, "_depth", PT_DEPTH, "_", OUTCOME, "/")
   if (!dir.exists(RESULTS_PATH)) {
     dir.create(RESULTS_PATH)
   }
@@ -60,13 +62,13 @@ if(save){
 
 # Load and prepare data (add original outcome): Training sample
 outcomes_pr <- read.csv(file.path(DATA_PATH, "data_clean_pr.csv"))
-training_df <- read.csv(file.path(DATA_PATH, "iates_pr.csv"))
-outcomes_pr <- outcomes_pr %>% select(outcome) %>% slice(training_df$id_mcf+1)
+training_df <- read.csv(file.path(paste0(DATA_PATH, "/", SET_STR, "_", OUTCOME), "iates_pr.csv"))
+outcomes_pr <- outcomes_pr[OUTCOME] %>% slice(training_df$id_mcf+1)
 training_df <- cbind(training_df, outcomes_pr)
 # Evaluation sample
 outcomes_ev <- read.csv(file.path(DATA_PATH, "data_clean_ev.csv"))
-evaluation_df <- read.csv(file.path(DATA_PATH, "iates_ev.csv"))
-outcomes_ev <- outcomes_ev %>% select(outcome) %>% slice(evaluation_df$id_mcf+1)
+evaluation_df <- read.csv(file.path(paste0(DATA_PATH, "/", SET_STR, "_", OUTCOME), "iates_ev.csv"))
+outcomes_ev <- outcomes_ev[OUTCOME] %>% slice(evaluation_df$id_mcf+1)
 evaluation_df <- cbind(evaluation_df, outcomes_ev)
 
 # Create combined sensitive attribute
@@ -89,7 +91,7 @@ unique_D_ch <- as.character(sort(unique(training_df[[VAR_D_NAME]])))
 nunique_D <- length(unique_D)
 unique(training_df[[VAR_D_NAME]])
 VAR_POLSCORE_NAME <- sapply(0:(nunique_D-1), function(x) paste0(
-  "outcome_lc", x, "_un_lc_pot_eff"))
+  OUTCOME, "_lc", x, "_un_lc_pot_eff"))
 
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --
 # ------------ First descriptive analysis --------------------------------------
@@ -210,7 +212,7 @@ df_fullplot <- training_fair_df[, vars_to_plot_sens] %>% pivot_longer(all_of(var
 df_fullplot <- df_fullplot %>% mutate(
   type = if_else(str_ends(name, "_mq"), "Adjusted variable", "Original variable"),
   name = str_remove(name, "_mq"),
-  program_number = str_match(name, "outcome_lc([0-9]+)_un_lc_pot_eff")[, 2],
+  program_number = str_match(name, paste0(OUTCOME, "_lc([0-9]+)_un_lc_pot_eff"))[, 2],
   name = if_else(!is.na(program_number), paste0("Policy score (", map_prog[program_number], ")"), name),
   name = if_else(name == "age", "Age", name),
   name = if_else(name == "past_income", "Past earnings", name),
@@ -301,7 +303,7 @@ for (set_name in names(datasets)) {
   D_obs <- df[[VAR_D_NAME]]
   res["observed", ] <- c(
     FALSE,
-    mean(df$outcome),
+    mean(df[[OUTCOME]]),
     compute_cramerv(D_obs, df$sens_comb),
     compute_chi2(D_obs, df$sens_comb),
     compute_BF(D_obs, df$sens_comb),
@@ -693,19 +695,22 @@ for(scen in names(scenarios)){
   }
 }
 results_partial <- do.call(rbind, rows)
-
+range_Welfare <- results_partial %>% filter(Metric == "Welfare") %>%
+  summarise(min_val = floor(min(Value) * 10) / 10, max_val = ceiling(max(Value) * 10) / 10)
+range_CramerV <- results_partial %>% filter(Metric == "CramerV") %>%
+  summarise(min_val = floor(min(Value) * 10) / 10, max_val = ceiling(max(Value) * 10) / 10)
 # Plot
 p1 <- ggplot(results_partial[results_partial$Metric == "Welfare", ], aes(x = Weight, y = Value, color = Scenario, linetype= Scenario)) +
   geom_line(linewidth=0.7) +
   labs(title = "Welfare", x = "Weight of adjusted variable", color = "Scenario:", linetype= "Scenario:") +
-  ylim(17.8, 18) +
+  ylim(range_Welfare$min_val, range_Welfare$max_val) +
   theme_minimal() +
   scale_color_discrete(labels = c(expression(paste("Adjust ", A)), expression(paste("Adjust ", Gamma["d"])), expression(paste("Adjust ", A, " and ", Gamma["d"])))) +
   scale_linetype_discrete(labels = c(expression(paste("Adjust ", A)), expression(paste("Adjust ", Gamma["d"])), expression(paste("Adjust ", A, " and ", Gamma["d"]))))
 p2 <- ggplot(results_partial[results_partial$Metric == "CramerV", ], aes(x = Weight, y = Value, color = Scenario, linetype= Scenario)) +
   geom_line(linewidth=0.7) +
   labs(title = "Fairness (Cramer's V)", x = "Weight of adjusted variable", color = "Scenario:", linetype= "Scenario:") +
-  ylim(0, 0.3) +
+  ylim(0, range_CramerV$max_val) +
   theme_minimal() +
   scale_color_discrete(labels = c(expression(paste("Adjust ", A)), expression(paste("Adjust ", Gamma["d"])), expression(paste("Adjust ", A, " and ", Gamma["d"])))) +
   scale_linetype_discrete(labels = c(expression(paste("Adjust ", A)), expression(paste("Adjust ", Gamma["d"])), expression(paste("Adjust ", A, " and ", Gamma["d"]))))

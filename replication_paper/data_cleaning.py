@@ -216,16 +216,27 @@ df = df.loc[~((df['elap'] == 1) & ((df['employed1'] == 1) | (df[
 # %%% Y Outcome
 
 # Calculate the outcome of interest: Months employed over 3 years
-Y_cols = ["outcome"]
+Y_cols = ["outcome0131", "outcome1324", "outcome2031", "outcome2631"]
 
 # If program start in Q1, then months 3-33, otherwise months 6-36
-df[Y_cols[0]] = (df['elap'] == 0) * df[[f"employed{i}" for i in range(
+df["outcome0131"] = (df['elap'] == 0) * df[[f"employed{i}" for i in range(
     3, 34)]].sum(axis=1) + (df['elap'] == 1) * df[[
         f"employed{i}" for i in range(6, 37)]].sum(axis=1)
+df["outcome1324"] = (df['elap'] == 0) * df[[f"employed{i}" for i in range(
+    15, 27)]].sum(axis=1) + (df['elap'] == 1) * df[[
+        f"employed{i}" for i in range(18, 30)]].sum(axis=1)
+df["outcome2031"] = (df['elap'] == 0) * df[[f"employed{i}" for i in range(
+    22, 34)]].sum(axis=1) + (df['elap'] == 1) * df[[
+        f"employed{i}" for i in range(25, 37)]].sum(axis=1)
+df["outcome2631"] = (df['elap'] == 0) * df[[f"employed{i}" for i in range(
+    28, 34)]].sum(axis=1) + (df['elap'] == 1) * df[[
+        f"employed{i}" for i in range(31, 37)]].sum(axis=1)
 
 # Assess outcome by treatment group
-print(df.assign(treatment6=df['treatment6'].map(mappings_back[
-    'treatment6'])).groupby('treatment6')[Y_cols[0]].describe())
+for i in Y_cols:
+    print(f"\n{i}")
+    print(df.assign(treatment6=df['treatment6'].map(mappings_back[
+        'treatment6'])).groupby('treatment6')[i].describe())
 
 # Keep only variables of interest
 df_onehot = df[ID_cols + D_cols_onehot + Y_cols + X_cols_onehot]

@@ -8,6 +8,7 @@
 # Standard libraries
 import numpy as np
 import pandas as pd
+import os
 from sklearn.model_selection import train_test_split
 from scipy.stats import chi2_contingency
 
@@ -133,39 +134,48 @@ df_ev.to_csv(PATH_TO_DATA + "\\cleaned\\data_clean_ev.csv", index=False)
 # Based on the following example
 # https://github.com/MCFpy/mcf/blob/main/examples/mcf_optpol_combined.py
 
-# Create an instance of the Modified Causal Forest model
-my_mcf = ModifiedCausalForest(
-    var_id_name=cols['ID'],
-    var_y_name=cols['Y'],  # Outcome variable
-    var_d_name=cols['D'],    # Treatment variable
-    var_x_name_ord=cols['X_ord'],  # Ordered covariates
-    var_x_name_unord=cols['X_unord'],  # Unordered covariate
-    gen_iate_eff=True,
-    cf_compare_only_to_zero=True,
-    gen_outpath=f"D:\\Fabian_Muny\\Results_fair\\MCF_outputs\\{set_str}"
-)
-# Train the forest
-tree_df, fill_y_df, outpath_train = my_mcf.train(df_tr)
+for out in cols['Y']:
 
-# Predict policy scores for data used to train allocation rules
-results_pr, _ = my_mcf.predict(df_pr)
-my_mcf.analyse(results_pr)
+    # Create an instance of the Modified Causal Forest model
+    my_mcf = ModifiedCausalForest(
+        var_id_name=cols['ID'],
+        var_y_name=out,  # out variable
+        var_d_name=cols['D'],    # Treatment variable
+        var_x_name_ord=cols['X_ord'],  # Ordered covariates
+        var_x_name_unord=cols['X_unord'],  # Unordered covariate
+        gen_iate_eff=True,
+        cf_compare_only_to_zero=True,
+        gen_outpath=f"D:\\Fabian_Muny\\Results_fair\\MCF_outputs\\{set_str}_{out}"
+    )
+    # Train the forest
+    tree_df, fill_y_df, outpath_train = my_mcf.train(df_tr)
 
-# Predict policy scores for data used to evaluate allocation rules
-results_ev, _ = my_mcf.predict(df_ev)
+    # Predict policy scores for data used to train allocation rules
+    results_pr, _ = my_mcf.predict(df_pr)
+    my_mcf.analyse(results_pr)
 
-# Create report
-my_report = McfOptPolReport(
-    mcf=my_mcf,
-    outputpath=f"D:\\Fabian_Muny\\Results_fair\\MCF_outputs\\{set_str}")
-my_report.report()
+    # Predict policy scores for data used to evaluate allocation rules
+    results_ev, _ = my_mcf.predict(df_ev)
 
-# Save IATEs
-pd.to_pickle(
-    results_pr['iate_data_df'], PATH_TO_DATA + "\\cleaned\\iates_pr.pkl")
-pd.to_pickle(
-    results_ev['iate_data_df'], PATH_TO_DATA + "\\cleaned\\iates_ev.pkl")
-results_pr['iate_data_df'].to_csv(
-    PATH_TO_DATA + "\\cleaned\\iates_pr.csv", index=False)
-results_ev['iate_data_df'].to_csv(
-    PATH_TO_DATA + "\\cleaned\\iates_ev.csv", index=False)
+    # Create report
+    my_report = McfOptPolReport(
+        mcf=my_mcf,
+        outputpath=f"D:\\Fabian_Muny\\Results_fair\\MCF_outputs\\{set_str}_{out}")
+    my_report.report()
+
+    # Save IATEs
+    os.makedirs(
+        PATH_TO_DATA + "\\cleaned\\" + set_str + "_" + out + "\\",
+        exist_ok=True)
+    pd.to_pickle(
+        results_pr['iate_data_df'],
+        PATH_TO_DATA + "\\cleaned\\" + set_str + "_" + out + "\\iates_pr.pkl")
+    pd.to_pickle(
+        results_ev['iate_data_df'],
+        PATH_TO_DATA + "\\cleaned\\" + set_str + "_" + out + "\\iates_ev.pkl")
+    results_pr['iate_data_df'].to_csv(
+        PATH_TO_DATA + "\\cleaned\\" + set_str + "_" + out + "\\iates_pr.csv",
+        index=False)
+    results_ev['iate_data_df'].to_csv(
+        PATH_TO_DATA + "\\cleaned\\" + set_str + "_" + out + "\\iates_ev.csv",
+        index=False)
