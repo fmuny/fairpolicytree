@@ -11,7 +11,7 @@
 
 <meta name="author" content="Nora Bearth, Michael Lechner, Jana Mareckova, Fabian Muny" />
 
-<meta name="date" content="2025-06-04" />
+<meta name="date" content="2025-06-05" />
 
 <title>Replication Notebook for Interpretable Policy Learning with Sensitive Attributes</title>
 
@@ -2724,7 +2724,7 @@ font-size: 0.95em;
 Attributes</em></strong></h1>
 <h4 class="author">Nora Bearth, Michael Lechner, Jana Mareckova, Fabian
 Muny</h4>
-<h4 class="date">2025-06-04</h4>
+<h4 class="date">2025-06-05</h4>
 
 </div>
 
@@ -3402,7 +3402,9 @@ if(PT_DEPTH == PT_SEARCH_DEPTH){
 # Run and evaluate policy trees for different adjustment scenarios
 opt_tree_list &lt;- list()
 data_list &lt;- list(
-  pt_no_adjustments = list(
+  pt_unadj_inclS = list(
+    exp = TRUE, As = colnames(cbind(As_org, sens_org)), scores = colnames(scores_org)),
+  pt_unadj_exclS = list(
     exp = TRUE, As = colnames(As_org), scores = colnames(scores_org)),
   pt_adjust_A = list(
     exp = FALSE, As = colnames(As_mq), scores = colnames(scores_org)),
@@ -3442,7 +3444,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <col width="8%" />
 <col width="8%" />
 <col width="10%" />
-<col width="8%" />
+<col width="9%" />
 <col width="6%" />
 <col width="6%" />
 <col width="6%" />
@@ -3524,7 +3526,21 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 </tr>
 <tr class="odd">
-<td align="left">pt_no_adjustments</td>
+<td align="left">pt_unadj_inclS</td>
+<td align="right">1</td>
+<td align="right">17.924</td>
+<td align="right">0.451</td>
+<td align="right">0</td>
+<td align="right">2305.498</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.199</td>
+<td align="right">0.801</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">pt_unadj_exclS</td>
 <td align="right">1</td>
 <td align="right">17.897</td>
 <td align="right">0.263</td>
@@ -3537,7 +3553,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 <td align="right">0.000</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">pt_adjust_A</td>
 <td align="right">0</td>
 <td align="right">17.899</td>
@@ -3551,7 +3567,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 <td align="right">0.000</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">pt_adjust_score</td>
 <td align="right">1</td>
 <td align="right">17.894</td>
@@ -3565,7 +3581,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 <td align="right">0.000</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">pt_adjust_A_score</td>
 <td align="right">0</td>
 <td align="right">17.895</td>
@@ -3590,7 +3606,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <col width="8%" />
 <col width="8%" />
 <col width="10%" />
-<col width="8%" />
+<col width="9%" />
 <col width="6%" />
 <col width="6%" />
 <col width="6%" />
@@ -3672,7 +3688,21 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 </tr>
 <tr class="odd">
-<td align="left">pt_no_adjustments</td>
+<td align="left">pt_unadj_inclS</td>
+<td align="right">1</td>
+<td align="right">17.910</td>
+<td align="right">0.459</td>
+<td align="right">0.000</td>
+<td align="right">1198.717</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.201</td>
+<td align="right">0.799</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">pt_unadj_exclS</td>
 <td align="right">1</td>
 <td align="right">17.884</td>
 <td align="right">0.275</td>
@@ -3685,7 +3715,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 <td align="right">0.000</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">pt_adjust_A</td>
 <td align="right">0</td>
 <td align="right">17.885</td>
@@ -3699,7 +3729,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 <td align="right">0.000</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">pt_adjust_score</td>
 <td align="right">1</td>
 <td align="right">17.882</td>
@@ -3713,7 +3743,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 <td align="right">0.000</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">pt_adjust_A_score</td>
 <td align="right">0</td>
 <td align="right">17.882</td>
@@ -3731,18 +3761,21 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 </table>
 <pre class="r"><code># Plot the trees
 lab &lt;- mappings[!is.na(mappings[VAR_D_NAME]), &#39;X&#39;]
-plot(opt_tree_list[[&#39;pt_no_adjustments&#39;]], leaf.labels=lab)</code></pre>
+plot(opt_tree_list[[&#39;pt_unadj_inclS&#39;]], leaf.labels=lab)</code></pre>
 <div class="grViz html-widget html-fill-item" id="htmlwidget-755e794fef0cc9ff4ac2" style="width:576px;height:576px;"></div>
-<script type="application/json" data-for="htmlwidget-755e794fef0cc9ff4ac2">{"x":{"diagram":"digraph nodes { \n node [shape=box] ;\n0 [label=\" qual_degree <= 0 \"] ;\n0 -> 1 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n1 [label=\" past_income <= 38590 \"] ;\n1 -> 3  ;\n1 -> 4  ;\n3 [label=\" age <= 35 \"] ;\n3 -> 7  ;\n3 -> 8  ;\n7  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n8  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n4  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n2 [label=\" age <= 40 \"] ;\n2 -> 5  ;\n2 -> 6  ;\n5  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n6 [label=\" past_income <= 27580 \"] ;\n6 -> 9  ;\n6 -> 10  ;\n9  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n10  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
-<pre class="r"><code>plot(opt_tree_list[[&#39;pt_adjust_A&#39;]], leaf.labels=lab)</code></pre>
+<script type="application/json" data-for="htmlwidget-755e794fef0cc9ff4ac2">{"x":{"diagram":"digraph nodes { \n node [shape=box] ;\n0 [label=\" qual_degree <= 0 \"] ;\n0 -> 1 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n1 [label=\" female <= 0 \"] ;\n1 -> 3  ;\n1 -> 4  ;\n3 [label=\" past_income <= 49620 \"] ;\n3 -> 7  ;\n3 -> 8  ;\n7  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n8  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n4  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n2 [label=\" age <= 40 \"] ;\n2 -> 5  ;\n2 -> 6  ;\n5  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n6 [label=\" past_income <= 27580 \"] ;\n6 -> 9  ;\n6 -> 10  ;\n9  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n10  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>plot(opt_tree_list[[&#39;pt_unadj_exclS&#39;]], leaf.labels=lab)</code></pre>
 <div class="grViz html-widget html-fill-item" id="htmlwidget-2adb1c5fd246d602d2fb" style="width:576px;height:576px;"></div>
-<script type="application/json" data-for="htmlwidget-2adb1c5fd246d602d2fb">{"x":{"diagram":"digraph nodes { \n node [shape=box] ;\n0 [label=\" age_mq <= 40 \"] ;\n0 -> 1 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n1 [label=\" past_income_mq <= 32890 \"] ;\n1 -> 3  ;\n1 -> 4  ;\n3 [label=\" age_mq <= 36 \"] ;\n3 -> 7  ;\n3 -> 8  ;\n7  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n8  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n4  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n2 [label=\" age_mq <= 46 \"] ;\n2 -> 5  ;\n2 -> 6  ;\n5 [label=\" past_income_mq <= 34560 \"] ;\n5 -> 9  ;\n5 -> 10  ;\n9  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n10  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n6 [label=\" past_income_mq <= 27560 \"] ;\n6 -> 11  ;\n6 -> 12  ;\n11  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n12  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
-<pre class="r"><code>plot(opt_tree_list[[&#39;pt_adjust_score&#39;]], leaf.labels=lab)</code></pre>
+<script type="application/json" data-for="htmlwidget-2adb1c5fd246d602d2fb">{"x":{"diagram":"digraph nodes { \n node [shape=box] ;\n0 [label=\" qual_degree <= 0 \"] ;\n0 -> 1 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n1 [label=\" past_income <= 38590 \"] ;\n1 -> 3  ;\n1 -> 4  ;\n3 [label=\" age <= 35 \"] ;\n3 -> 7  ;\n3 -> 8  ;\n7  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n8  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n4  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n2 [label=\" age <= 40 \"] ;\n2 -> 5  ;\n2 -> 6  ;\n5  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n6 [label=\" past_income <= 27580 \"] ;\n6 -> 9  ;\n6 -> 10  ;\n9  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n10  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>plot(opt_tree_list[[&#39;pt_adjust_A&#39;]], leaf.labels=lab)</code></pre>
 <div class="grViz html-widget html-fill-item" id="htmlwidget-c2e9da87bdb9a9dac024" style="width:576px;height:576px;"></div>
-<script type="application/json" data-for="htmlwidget-c2e9da87bdb9a9dac024">{"x":{"diagram":"digraph nodes { \n node [shape=box] ;\n0 [label=\" age <= 44 \"] ;\n0 -> 1 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n1 [label=\" past_income <= 35700 \"] ;\n1 -> 3  ;\n1 -> 4  ;\n3 [label=\" age <= 37 \"] ;\n3 -> 7  ;\n3 -> 8  ;\n7  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n8  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n4  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n2 [label=\" age <= 48 \"] ;\n2 -> 5  ;\n2 -> 6  ;\n5 [label=\" past_income <= 36760 \"] ;\n5 -> 9  ;\n5 -> 10  ;\n9  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n10  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n6 [label=\" past_income <= 30000 \"] ;\n6 -> 11  ;\n6 -> 12  ;\n11  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n12  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
-<pre class="r"><code>plot(opt_tree_list[[&#39;pt_adjust_A_score&#39;]], leaf.labels=lab)</code></pre>
+<script type="application/json" data-for="htmlwidget-c2e9da87bdb9a9dac024">{"x":{"diagram":"digraph nodes { \n node [shape=box] ;\n0 [label=\" age_mq <= 40 \"] ;\n0 -> 1 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n1 [label=\" past_income_mq <= 32890 \"] ;\n1 -> 3  ;\n1 -> 4  ;\n3 [label=\" age_mq <= 36 \"] ;\n3 -> 7  ;\n3 -> 8  ;\n7  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n8  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n4  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n2 [label=\" age_mq <= 46 \"] ;\n2 -> 5  ;\n2 -> 6  ;\n5 [label=\" past_income_mq <= 34560 \"] ;\n5 -> 9  ;\n5 -> 10  ;\n9  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n10  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n6 [label=\" past_income_mq <= 27560 \"] ;\n6 -> 11  ;\n6 -> 12  ;\n11  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n12  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>plot(opt_tree_list[[&#39;pt_adjust_score&#39;]], leaf.labels=lab)</code></pre>
 <div class="grViz html-widget html-fill-item" id="htmlwidget-f95c3ebf07f38fa670ef" style="width:576px;height:576px;"></div>
-<script type="application/json" data-for="htmlwidget-f95c3ebf07f38fa670ef">{"x":{"diagram":"digraph nodes { \n node [shape=box] ;\n0 [label=\" qual_degree_mq <= 0 \"] ;\n0 -> 1 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n1 [label=\" age_mq <= 35 \"] ;\n1 -> 3  ;\n1 -> 4  ;\n3  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n4 [label=\" past_income_mq <= 42250 \"] ;\n4 -> 7  ;\n4 -> 8  ;\n7  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n8  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n2 [label=\" age_mq <= 36 \"] ;\n2 -> 5  ;\n2 -> 6  ;\n5  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n6 [label=\" past_income_mq <= 32920 \"] ;\n6 -> 9  ;\n6 -> 10  ;\n9  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n10  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<script type="application/json" data-for="htmlwidget-f95c3ebf07f38fa670ef">{"x":{"diagram":"digraph nodes { \n node [shape=box] ;\n0 [label=\" age <= 44 \"] ;\n0 -> 1 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n1 [label=\" past_income <= 35700 \"] ;\n1 -> 3  ;\n1 -> 4  ;\n3 [label=\" age <= 37 \"] ;\n3 -> 7  ;\n3 -> 8  ;\n7  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n8  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n4  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n2 [label=\" age <= 48 \"] ;\n2 -> 5  ;\n2 -> 6  ;\n5 [label=\" past_income <= 36760 \"] ;\n5 -> 9  ;\n5 -> 10  ;\n9  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n10  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n6 [label=\" past_income <= 30000 \"] ;\n6 -> 11  ;\n6 -> 12  ;\n11  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n12  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>plot(opt_tree_list[[&#39;pt_adjust_A_score&#39;]], leaf.labels=lab)</code></pre>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-dc7e713cd312cacd2b92" style="width:576px;height:576px;"></div>
+<script type="application/json" data-for="htmlwidget-dc7e713cd312cacd2b92">{"x":{"diagram":"digraph nodes { \n node [shape=box] ;\n0 [label=\" qual_degree_mq <= 0 \"] ;\n0 -> 1 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n1 [label=\" age_mq <= 35 \"] ;\n1 -> 3  ;\n1 -> 4  ;\n3  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n4 [label=\" past_income_mq <= 42250 \"] ;\n4 -> 7  ;\n4 -> 8  ;\n7  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n8  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n2 [label=\" age_mq <= 36 \"] ;\n2 -> 5  ;\n2 -> 6  ;\n5  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n6 [label=\" past_income_mq <= 32920 \"] ;\n6 -> 9  ;\n6 -> 10  ;\n9  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n10  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="probabilistic-split-trees" class="section level2" number="5">
 <h2><span class="header-section-number">5</span> Probabilistic Split
@@ -3799,7 +3832,7 @@ for(set_name in names(data_list2)) {
 }
 # Print results
 knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Training sample&quot;)</code></pre>
-<table>
+<table style="width:100%;">
 <caption>Training sample</caption>
 <colgroup>
 <col width="19%" />
@@ -3807,7 +3840,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <col width="8%" />
 <col width="8%" />
 <col width="10%" />
-<col width="8%" />
+<col width="9%" />
 <col width="6%" />
 <col width="6%" />
 <col width="6%" />
@@ -3889,7 +3922,21 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 </tr>
 <tr class="odd">
-<td align="left">pt_no_adjustments</td>
+<td align="left">pt_unadj_inclS</td>
+<td align="right">1</td>
+<td align="right">17.924</td>
+<td align="right">0.451</td>
+<td align="right">0</td>
+<td align="right">2305.498</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.199</td>
+<td align="right">0.801</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">pt_unadj_exclS</td>
 <td align="right">1</td>
 <td align="right">17.897</td>
 <td align="right">0.263</td>
@@ -3902,7 +3949,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 <td align="right">0.000</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">pt_adjust_A</td>
 <td align="right">0</td>
 <td align="right">17.899</td>
@@ -3916,7 +3963,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 <td align="right">0.000</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">pt_adjust_score</td>
 <td align="right">1</td>
 <td align="right">17.894</td>
@@ -3930,7 +3977,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 <td align="right">0.000</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">pt_adjust_A_score</td>
 <td align="right">0</td>
 <td align="right">17.895</td>
@@ -3944,7 +3991,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 <td align="right">0.000</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">pst_adjust_A</td>
 <td align="right">1</td>
 <td align="right">17.898</td>
@@ -3958,7 +4005,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 <td align="right">0.000</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">pst_adjust_A_score</td>
 <td align="right">1</td>
 <td align="right">17.895</td>
@@ -3975,7 +4022,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 </tbody>
 </table>
 <pre class="r"><code>knitr::kable(results_list[[&#39;evaluation&#39;]], digits=3, caption=&quot;Evaluation sample&quot;)</code></pre>
-<table>
+<table style="width:100%;">
 <caption>Evaluation sample</caption>
 <colgroup>
 <col width="19%" />
@@ -3983,7 +4030,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <col width="8%" />
 <col width="8%" />
 <col width="10%" />
-<col width="8%" />
+<col width="9%" />
 <col width="6%" />
 <col width="6%" />
 <col width="6%" />
@@ -4065,7 +4112,21 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 </tr>
 <tr class="odd">
-<td align="left">pt_no_adjustments</td>
+<td align="left">pt_unadj_inclS</td>
+<td align="right">1</td>
+<td align="right">17.910</td>
+<td align="right">0.459</td>
+<td align="right">0.000</td>
+<td align="right">1198.717</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.201</td>
+<td align="right">0.799</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">pt_unadj_exclS</td>
 <td align="right">1</td>
 <td align="right">17.884</td>
 <td align="right">0.275</td>
@@ -4078,7 +4139,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 <td align="right">0.000</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">pt_adjust_A</td>
 <td align="right">0</td>
 <td align="right">17.885</td>
@@ -4092,7 +4153,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 <td align="right">0.000</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">pt_adjust_score</td>
 <td align="right">1</td>
 <td align="right">17.882</td>
@@ -4106,7 +4167,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 <td align="right">0.000</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">pt_adjust_A_score</td>
 <td align="right">0</td>
 <td align="right">17.882</td>
@@ -4120,7 +4181,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 <td align="right">0.000</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">pst_adjust_A</td>
 <td align="right">1</td>
 <td align="right">17.886</td>
@@ -4134,7 +4195,7 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <td align="right">0.000</td>
 <td align="right">0.000</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">pst_adjust_A_score</td>
 <td align="right">1</td>
 <td align="right">17.884</td>
@@ -4153,20 +4214,20 @@ knitr::kable(results_list[[&#39;training&#39;]], digits=3, caption=&quot;Trainin
 <div class="superbigimage">
 <pre class="r"><code># Plot the trees
 plot(opt_tree_list[[&#39;pst_adjust_A&#39;]], sens_names=VAR_S_NAME_ORD, leaf.labels=lab)</code></pre>
-<div class="grViz html-widget html-fill-item" id="htmlwidget-dc7e713cd312cacd2b92" style="width:1152px;height:480px;"></div>
-<script type="application/json" data-for="htmlwidget-dc7e713cd312cacd2b92">{"x":{"diagram":"digraph nodes { \n node [shape=box] ;\n1 [color=none,style=filled, fillcolor=lightblue, label=\"female: 0\nswiss: 0\"];\n1 -> 100[style=invis];\n100 [label=\" age < 40 (100%)\nage = 40 (16.6%) \"] ;\n100 -> 101 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n100 -> 102 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n101 [label=\" past_income <= 37976.84 \"] ;\n101 -> 103  ;\n101 -> 104  ;\n103 [label=\" age < 36 (100%)\nage = 36 (72.2%) \"] ;\n103 -> 107  ;\n103 -> 108  ;\n107  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n108  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n104  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n102 [label=\" age < 46 (100%)\nage = 46 (62.5%) \"] ;\n102 -> 105  ;\n102 -> 106  ;\n105 [label=\" past_income < 40000 (100%)\npast_income = 40000 (33.3%) \"] ;\n105 -> 109  ;\n105 -> 1010  ;\n109  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n1010  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n106 [label=\" past_income <= 34000 \"] ;\n106 -> 1011  ;\n106 -> 1012  ;\n1011  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n1012  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];2 [color=none,style=filled, fillcolor=lightblue, label=\"female: 0\nswiss: 1\"];\n2 -> 200[style=invis];\n200 [label=\" age < 40 (100%)\nage = 40 (48.2%) \"] ;\n200 -> 201 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n200 -> 202 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n201 [label=\" past_income < 42000 (100%)\npast_income = 42000 (84.6%) \"] ;\n201 -> 203  ;\n201 -> 204  ;\n203 [label=\" age < 36 (100%)\nage = 36 (75%) \"] ;\n203 -> 207  ;\n203 -> 208  ;\n207  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n208  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n204  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n202 [label=\" age < 47 (100%)\nage = 47 (51.2%) \"] ;\n202 -> 205  ;\n202 -> 206  ;\n205 [label=\" past_income < 44490 (100%)\npast_income = 44490 (50%) \"] ;\n205 -> 209  ;\n205 -> 2010  ;\n209  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n2010  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n206 [label=\" past_income <= 35210 \"] ;\n206 -> 2011  ;\n206 -> 2012  ;\n2011  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n2012  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];3 [color=none,style=filled, fillcolor=lightblue, label=\"female: 1\nswiss: 0\"];\n3 -> 300[style=invis];\n300 [label=\" age < 38 (100%)\nage = 38 (89.1%) \"] ;\n300 -> 301 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n300 -> 302 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n301 [label=\" past_income < 22130 (100%)\npast_income = 22130 (73.1%) \"] ;\n301 -> 303  ;\n301 -> 304  ;\n303 [label=\" age < 35 (100%)\nage = 35 (69.8%) \"] ;\n303 -> 307  ;\n303 -> 308  ;\n307  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n308  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n304  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n302 [label=\" age < 44 (100%)\nage = 44 (53.3%) \"] ;\n302 -> 305  ;\n302 -> 306  ;\n305 [label=\" past_income <= 24736.22 \"] ;\n305 -> 309  ;\n305 -> 3010  ;\n309  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n3010  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n306 [label=\" past_income <= 18051.35 \"] ;\n306 -> 3011  ;\n306 -> 3012  ;\n3011  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n3012  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];4 [color=none,style=filled, fillcolor=lightblue, label=\"female: 1\nswiss: 1\"];\n4 -> 400[style=invis];\n400 [label=\" age < 41 (100%)\nage = 41 (81.9%) \"] ;\n400 -> 401 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n400 -> 402 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n401 [label=\" past_income < 27560 (100%)\npast_income = 27560 (95.3%) \"] ;\n401 -> 403  ;\n401 -> 404  ;\n403 [label=\" age < 37 (100%)\nage = 37 (97.4%) \"] ;\n403 -> 407  ;\n403 -> 408  ;\n407  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n408  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n404  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n402 [label=\" age < 48 (100%)\nage = 48 (42.3%) \"] ;\n402 -> 405  ;\n402 -> 406  ;\n405 [label=\" past_income <= 30190 \"] ;\n405 -> 409  ;\n405 -> 4010  ;\n409  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n4010  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n406 [label=\" past_income < 22130 (100%)\npast_income = 22130 (90%) \"] ;\n406 -> 4011  ;\n406 -> 4012  ;\n4011  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n4012  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-dd925b860bdbb59f268d" style="width:1152px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-dd925b860bdbb59f268d">{"x":{"diagram":"digraph nodes { \n node [shape=box] ;\n1 [color=none,style=filled, fillcolor=lightblue, label=\"female: 0\nswiss: 0\"];\n1 -> 100[style=invis];\n100 [label=\" age < 40 (100%)\nage = 40 (16.6%) \"] ;\n100 -> 101 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n100 -> 102 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n101 [label=\" past_income <= 37976.84 \"] ;\n101 -> 103  ;\n101 -> 104  ;\n103 [label=\" age < 36 (100%)\nage = 36 (72.2%) \"] ;\n103 -> 107  ;\n103 -> 108  ;\n107  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n108  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n104  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n102 [label=\" age < 46 (100%)\nage = 46 (62.5%) \"] ;\n102 -> 105  ;\n102 -> 106  ;\n105 [label=\" past_income < 40000 (100%)\npast_income = 40000 (33.3%) \"] ;\n105 -> 109  ;\n105 -> 1010  ;\n109  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n1010  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n106 [label=\" past_income <= 34000 \"] ;\n106 -> 1011  ;\n106 -> 1012  ;\n1011  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n1012  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];2 [color=none,style=filled, fillcolor=lightblue, label=\"female: 0\nswiss: 1\"];\n2 -> 200[style=invis];\n200 [label=\" age < 40 (100%)\nage = 40 (48.2%) \"] ;\n200 -> 201 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n200 -> 202 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n201 [label=\" past_income < 42000 (100%)\npast_income = 42000 (84.6%) \"] ;\n201 -> 203  ;\n201 -> 204  ;\n203 [label=\" age < 36 (100%)\nage = 36 (75%) \"] ;\n203 -> 207  ;\n203 -> 208  ;\n207  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n208  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n204  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n202 [label=\" age < 47 (100%)\nage = 47 (51.2%) \"] ;\n202 -> 205  ;\n202 -> 206  ;\n205 [label=\" past_income < 44490 (100%)\npast_income = 44490 (50%) \"] ;\n205 -> 209  ;\n205 -> 2010  ;\n209  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n2010  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n206 [label=\" past_income <= 35210 \"] ;\n206 -> 2011  ;\n206 -> 2012  ;\n2011  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n2012  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];3 [color=none,style=filled, fillcolor=lightblue, label=\"female: 1\nswiss: 0\"];\n3 -> 300[style=invis];\n300 [label=\" age < 38 (100%)\nage = 38 (89.1%) \"] ;\n300 -> 301 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n300 -> 302 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n301 [label=\" past_income < 22130 (100%)\npast_income = 22130 (73.1%) \"] ;\n301 -> 303  ;\n301 -> 304  ;\n303 [label=\" age < 35 (100%)\nage = 35 (69.8%) \"] ;\n303 -> 307  ;\n303 -> 308  ;\n307  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n308  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n304  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n302 [label=\" age < 44 (100%)\nage = 44 (53.3%) \"] ;\n302 -> 305  ;\n302 -> 306  ;\n305 [label=\" past_income <= 24736.22 \"] ;\n305 -> 309  ;\n305 -> 3010  ;\n309  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n3010  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n306 [label=\" past_income <= 18051.35 \"] ;\n306 -> 3011  ;\n306 -> 3012  ;\n3011  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n3012  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];4 [color=none,style=filled, fillcolor=lightblue, label=\"female: 1\nswiss: 1\"];\n4 -> 400[style=invis];\n400 [label=\" age < 41 (100%)\nage = 41 (81.9%) \"] ;\n400 -> 401 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n400 -> 402 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n401 [label=\" past_income < 27560 (100%)\npast_income = 27560 (95.3%) \"] ;\n401 -> 403  ;\n401 -> 404  ;\n403 [label=\" age < 37 (100%)\nage = 37 (97.4%) \"] ;\n403 -> 407  ;\n403 -> 408  ;\n407  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n408  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n404  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n402 [label=\" age < 48 (100%)\nage = 48 (42.3%) \"] ;\n402 -> 405  ;\n402 -> 406  ;\n405 [label=\" past_income <= 30190 \"] ;\n405 -> 409  ;\n405 -> 4010  ;\n409  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n4010  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n406 [label=\" past_income < 22130 (100%)\npast_income = 22130 (90%) \"] ;\n406 -> 4011  ;\n406 -> 4012  ;\n4011  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n4012  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div class="superbigimage">
 <pre class="r"><code>plot(opt_tree_list[[&#39;pst_adjust_A_score&#39;]], sens_names=VAR_S_NAME_ORD, leaf.labels=lab)</code></pre>
-<div class="grViz html-widget html-fill-item" id="htmlwidget-dd925b860bdbb59f268d" style="width:1152px;height:480px;"></div>
-<script type="application/json" data-for="htmlwidget-dd925b860bdbb59f268d">{"x":{"diagram":"digraph nodes { \n node [shape=box] ;\n1 [color=none,style=filled, fillcolor=lightblue, label=\"female: 0\nswiss: 0\"];\n1 -> 100[style=invis];\n100 [label=\" qual_degree < 0 (100%)\nqual_degree = 0 (40%) \"] ;\n100 -> 101 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n100 -> 102 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n101 [label=\" age < 32 (100%)\nage = 32 (30.9%) \"] ;\n101 -> 103  ;\n101 -> 104  ;\n103  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n104 [label=\" past_income < 44000 (100%)\npast_income = 44000 (20%) \"] ;\n104 -> 107  ;\n104 -> 108  ;\n107  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n108  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n102 [label=\" age < 36 (100%)\nage = 36 (86%) \"] ;\n102 -> 105  ;\n102 -> 106  ;\n105  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n106 [label=\" past_income <= 38564.05 \"] ;\n106 -> 109  ;\n106 -> 1010  ;\n109  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n1010  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];2 [color=none,style=filled, fillcolor=lightblue, label=\"female: 0\nswiss: 1\"];\n2 -> 200[style=invis];\n200 [label=\" qual_degree < 1 (100%)\nqual_degree = 1 (1.1%) \"] ;\n200 -> 201 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n200 -> 202 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n201 [label=\" age < 31 (100%)\nage = 31 (94.4%) \"] ;\n201 -> 203  ;\n201 -> 204  ;\n203  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n204 [label=\" past_income < 50380 (100%)\npast_income = 50380 (33.3%) \"] ;\n204 -> 207  ;\n204 -> 208  ;\n207  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n208  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n202 [label=\" age < 36 (100%)\nage = 36 (91.3%) \"] ;\n202 -> 205  ;\n202 -> 206  ;\n205  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n206 [label=\" past_income <= 42994.45 \"] ;\n206 -> 209  ;\n206 -> 2010  ;\n209  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n2010  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];3 [color=none,style=filled, fillcolor=lightblue, label=\"female: 1\nswiss: 0\"];\n3 -> 300[style=invis];\n300 [label=\" qual_degree < 0 (100%)\nqual_degree = 0 (37%) \"] ;\n300 -> 301 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n300 -> 302 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n301 [label=\" age <= 31 \"] ;\n301 -> 303  ;\n301 -> 304  ;\n303  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n304 [label=\" past_income <= 30330 \"] ;\n304 -> 307  ;\n304 -> 308  ;\n307  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n308  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n302 [label=\" age < 35 (100%)\nage = 35 (80%) \"] ;\n302 -> 305  ;\n302 -> 306  ;\n305  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n306 [label=\" past_income <= 22693.71 \"] ;\n306 -> 309  ;\n306 -> 3010  ;\n309  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n3010  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];4 [color=none,style=filled, fillcolor=lightblue, label=\"female: 1\nswiss: 1\"];\n4 -> 400[style=invis];\n400 [label=\" qual_degree < 0 (100%)\nqual_degree = 0 (83.6%) \"] ;\n400 -> 401 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n400 -> 402 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n401 [label=\" age < 32 (100%)\nage = 32 (76.5%) \"] ;\n401 -> 403  ;\n401 -> 404  ;\n403  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n404 [label=\" past_income <= 35540.86 \"] ;\n404 -> 407  ;\n404 -> 408  ;\n407  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n408  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n402 [label=\" age < 38 (100%)\nage = 38 (10.3%) \"] ;\n402 -> 405  ;\n402 -> 406  ;\n405  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n406 [label=\" past_income <= 28400 \"] ;\n406 -> 409  ;\n406 -> 4010  ;\n409  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n4010  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-2bea430ca4145df051d4" style="width:1152px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-2bea430ca4145df051d4">{"x":{"diagram":"digraph nodes { \n node [shape=box] ;\n1 [color=none,style=filled, fillcolor=lightblue, label=\"female: 0\nswiss: 0\"];\n1 -> 100[style=invis];\n100 [label=\" qual_degree < 0 (100%)\nqual_degree = 0 (40%) \"] ;\n100 -> 101 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n100 -> 102 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n101 [label=\" age < 32 (100%)\nage = 32 (30.9%) \"] ;\n101 -> 103  ;\n101 -> 104  ;\n103  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n104 [label=\" past_income < 44000 (100%)\npast_income = 44000 (20%) \"] ;\n104 -> 107  ;\n104 -> 108  ;\n107  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n108  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n102 [label=\" age < 36 (100%)\nage = 36 (86%) \"] ;\n102 -> 105  ;\n102 -> 106  ;\n105  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n106 [label=\" past_income <= 38564.05 \"] ;\n106 -> 109  ;\n106 -> 1010  ;\n109  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n1010  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];2 [color=none,style=filled, fillcolor=lightblue, label=\"female: 0\nswiss: 1\"];\n2 -> 200[style=invis];\n200 [label=\" qual_degree < 1 (100%)\nqual_degree = 1 (1.1%) \"] ;\n200 -> 201 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n200 -> 202 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n201 [label=\" age < 31 (100%)\nage = 31 (94.4%) \"] ;\n201 -> 203  ;\n201 -> 204  ;\n203  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n204 [label=\" past_income < 50380 (100%)\npast_income = 50380 (33.3%) \"] ;\n204 -> 207  ;\n204 -> 208  ;\n207  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n208  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n202 [label=\" age < 36 (100%)\nage = 36 (91.3%) \"] ;\n202 -> 205  ;\n202 -> 206  ;\n205  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n206 [label=\" past_income <= 42994.45 \"] ;\n206 -> 209  ;\n206 -> 2010  ;\n209  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n2010  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];3 [color=none,style=filled, fillcolor=lightblue, label=\"female: 1\nswiss: 0\"];\n3 -> 300[style=invis];\n300 [label=\" qual_degree < 0 (100%)\nqual_degree = 0 (37%) \"] ;\n300 -> 301 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n300 -> 302 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n301 [label=\" age <= 31 \"] ;\n301 -> 303  ;\n301 -> 304  ;\n303  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n304 [label=\" past_income <= 30330 \"] ;\n304 -> 307  ;\n304 -> 308  ;\n307  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n308  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n302 [label=\" age < 35 (100%)\nage = 35 (80%) \"] ;\n302 -> 305  ;\n302 -> 306  ;\n305  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n306 [label=\" past_income <= 22693.71 \"] ;\n306 -> 309  ;\n306 -> 3010  ;\n309  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n3010  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];4 [color=none,style=filled, fillcolor=lightblue, label=\"female: 1\nswiss: 1\"];\n4 -> 400[style=invis];\n400 [label=\" qual_degree < 0 (100%)\nqual_degree = 0 (83.6%) \"] ;\n400 -> 401 [labeldistance=2.5, labelangle=45, headlabel=\"True\"];\n400 -> 402 [labeldistance=2.5, labelangle=-45, headlabel=\"False\"]\n401 [label=\" age < 32 (100%)\nage = 32 (76.5%) \"] ;\n401 -> 403  ;\n401 -> 404  ;\n403  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n404 [label=\" past_income <= 35540.86 \"] ;\n404 -> 407  ;\n404 -> 408  ;\n407  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n408  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n402 [label=\" age < 38 (100%)\nage = 38 (10.3%) \"] ;\n402 -> 405  ;\n402 -> 406  ;\n405  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n406 [label=\" past_income <= 28400 \"] ;\n406 -> 409  ;\n406 -> 4010  ;\n409  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n4010  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 <pre class="r"><code># Combine to one tree by manually adjusting dot string
 dot_string_total &lt;- &quot;&quot;
 j &lt;- 0
-for(i in names(opt_tree_list[[&#39;pst_adjust_A&#39;]])){
+for(i in names(opt_tree_list[[&#39;pst_adjust_A_score&#39;]])){
   j &lt;- j + 1
-  dot_string2 &lt;- plot(opt_tree_list[[&#39;pst_adjust_A&#39;]][[i]], leaf.labels=lab)[[&quot;x&quot;]][[&quot;diagram&quot;]]
+  dot_string2 &lt;- plot(opt_tree_list[[&#39;pst_adjust_A_score&#39;]][[i]], leaf.labels=lab)[[&quot;x&quot;]][[&quot;diagram&quot;]]
   dot_string2 &lt;- gsub(&quot;\n(\\d)&quot;, paste0(&quot;\n&quot;,j,&quot;\\1&quot;), dot_string2)
   dot_string2 &lt;- gsub(&quot;-&gt; (\\d)&quot;, paste0(&quot;-&gt; &quot;,j,&quot;\\1&quot;), dot_string2)
   dot_string2 &lt;- sub(&quot;digraph nodes { \n node [shape=box] ;\n&quot;, &quot;&quot;, dot_string2, fixed = TRUE)
@@ -4196,8 +4257,8 @@ dot_string &lt;- paste0(&quot;
 dot_string &lt;- gsub(&quot;qual_degree&quot;, &quot;degree&quot;, dot_string, fixed = TRUE)
 dot_string &lt;- gsub(&quot;past_income&quot;, &quot;past earnings&quot;, dot_string, fixed = TRUE)
 DiagrammeR::grViz(dot_string)</code></pre>
-<div class="grViz html-widget html-fill-item" id="htmlwidget-2bea430ca4145df051d4" style="width:672px;height:960px;"></div>
-<script type="application/json" data-for="htmlwidget-2bea430ca4145df051d4">{"x":{"diagram":"\n      digraph combined {\n        rankdir=LR;\n        node [shape=box];\n        top [label=\"female = 1\", shape=ellipse, style=filled, fillcolor=lightblue];\n        top2 [label=\"swiss = 1\", shape=ellipse, style=filled, fillcolor=lightblue];\n        top3 [label=\"swiss = 1\", shape=ellipse, style=filled, fillcolor=lightblue];\n        10 [label=\" age < 40 (100%)\nage = 40 (16.6%) \"] ;\n10 -> 11 ;\n10 -> 12 \n11 [label=\" past earnings <= 37976.84 \"] ;\n11 -> 13  ;\n11 -> 14  ;\n13 [label=\" age < 36 (100%)\nage = 36 (72.2%) \"] ;\n13 -> 17  ;\n13 -> 18  ;\n17  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n18  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n14  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n12 [label=\" age < 46 (100%)\nage = 46 (62.5%) \"] ;\n12 -> 15  ;\n12 -> 16  ;\n15 [label=\" past earnings < 40000 (100%)\npast earnings = 40000 (33.3%) \"] ;\n15 -> 19  ;\n15 -> 110  ;\n19  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n110  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n16 [label=\" past earnings <= 34000 \"] ;\n16 -> 111  ;\n16 -> 112  ;\n111  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n112  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];20 [label=\" age < 40 (100%)\nage = 40 (48.2%) \"] ;\n20 -> 21 ;\n20 -> 22 \n21 [label=\" past earnings < 42000 (100%)\npast earnings = 42000 (84.6%) \"] ;\n21 -> 23  ;\n21 -> 24  ;\n23 [label=\" age < 36 (100%)\nage = 36 (75%) \"] ;\n23 -> 27  ;\n23 -> 28  ;\n27  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n28  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n24  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n22 [label=\" age < 47 (100%)\nage = 47 (51.2%) \"] ;\n22 -> 25  ;\n22 -> 26  ;\n25 [label=\" past earnings < 44490 (100%)\npast earnings = 44490 (50%) \"] ;\n25 -> 29  ;\n25 -> 210  ;\n29  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n210  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n26 [label=\" past earnings <= 35210 \"] ;\n26 -> 211  ;\n26 -> 212  ;\n211  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n212  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];30 [label=\" age < 38 (100%)\nage = 38 (89.1%) \"] ;\n30 -> 31 ;\n30 -> 32 \n31 [label=\" past earnings < 22130 (100%)\npast earnings = 22130 (73.1%) \"] ;\n31 -> 33  ;\n31 -> 34  ;\n33 [label=\" age < 35 (100%)\nage = 35 (69.8%) \"] ;\n33 -> 37  ;\n33 -> 38  ;\n37  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n38  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n34  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n32 [label=\" age < 44 (100%)\nage = 44 (53.3%) \"] ;\n32 -> 35  ;\n32 -> 36  ;\n35 [label=\" past earnings <= 24736.22 \"] ;\n35 -> 39  ;\n35 -> 310  ;\n39  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n310  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n36 [label=\" past earnings <= 18051.35 \"] ;\n36 -> 311  ;\n36 -> 312  ;\n311  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n312  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];40 [label=\" age < 41 (100%)\nage = 41 (81.9%) \"] ;\n40 -> 41 ;\n40 -> 42 \n41 [label=\" past earnings < 27560 (100%)\npast earnings = 27560 (95.3%) \"] ;\n41 -> 43  ;\n41 -> 44  ;\n43 [label=\" age < 37 (100%)\nage = 37 (97.4%) \"] ;\n43 -> 47  ;\n43 -> 48  ;\n47  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n48  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n44  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n42 [label=\" age < 48 (100%)\nage = 48 (42.3%) \"] ;\n42 -> 45  ;\n42 -> 46  ;\n45 [label=\" past earnings <= 30190 \"] ;\n45 -> 49  ;\n45 -> 410  ;\n49  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n410  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n46 [label=\" past earnings < 22130 (100%)\npast earnings = 22130 (90%) \"] ;\n46 -> 411  ;\n46 -> 412  ;\n411  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n412  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n        top -> top2 [labeldistance=3, labelangle=-30, headlabel=\"True\"];\n        top -> top3 [labeldistance=3, labelangle=30, headlabel=\"False\"];\n        top2 -> 10;\n        top2 -> 20;\n        top3 -> 30;\n        top3 -> 40;\n      }\n    ","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-ac71c2d01ab6846b4b7b" style="width:672px;height:960px;"></div>
+<script type="application/json" data-for="htmlwidget-ac71c2d01ab6846b4b7b">{"x":{"diagram":"\n      digraph combined {\n        rankdir=LR;\n        node [shape=box];\n        top [label=\"female = 1\", shape=ellipse, style=filled, fillcolor=lightblue];\n        top2 [label=\"swiss = 1\", shape=ellipse, style=filled, fillcolor=lightblue];\n        top3 [label=\"swiss = 1\", shape=ellipse, style=filled, fillcolor=lightblue];\n        10 [label=\" degree < 0 (100%)\ndegree = 0 (40%) \"] ;\n10 -> 11 ;\n10 -> 12 \n11 [label=\" age < 32 (100%)\nage = 32 (30.9%) \"] ;\n11 -> 13  ;\n11 -> 14  ;\n13  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n14 [label=\" past earnings < 44000 (100%)\npast earnings = 44000 (20%) \"] ;\n14 -> 17  ;\n14 -> 18  ;\n17  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n18  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n12 [label=\" age < 36 (100%)\nage = 36 (86%) \"] ;\n12 -> 15  ;\n12 -> 16  ;\n15  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n16 [label=\" past earnings <= 38564.05 \"] ;\n16 -> 19  ;\n16 -> 110  ;\n19  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n110  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];20 [label=\" degree < 1 (100%)\ndegree = 1 (1.1%) \"] ;\n20 -> 21 ;\n20 -> 22 \n21 [label=\" age < 31 (100%)\nage = 31 (94.4%) \"] ;\n21 -> 23  ;\n21 -> 24  ;\n23  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n24 [label=\" past earnings < 50380 (100%)\npast earnings = 50380 (33.3%) \"] ;\n24 -> 27  ;\n24 -> 28  ;\n27  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n28  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n22 [label=\" age < 36 (100%)\nage = 36 (91.3%) \"] ;\n22 -> 25  ;\n22 -> 26  ;\n25  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n26 [label=\" past earnings <= 42994.45 \"] ;\n26 -> 29  ;\n26 -> 210  ;\n29  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n210  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];30 [label=\" degree < 0 (100%)\ndegree = 0 (37%) \"] ;\n30 -> 31 ;\n30 -> 32 \n31 [label=\" age <= 31 \"] ;\n31 -> 33  ;\n31 -> 34  ;\n33  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n34 [label=\" past earnings <= 30330 \"] ;\n34 -> 37  ;\n34 -> 38  ;\n37  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n38  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n32 [label=\" age < 35 (100%)\nage = 35 (80%) \"] ;\n32 -> 35  ;\n32 -> 36  ;\n35  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n36 [label=\" past earnings <= 22693.71 \"] ;\n36 -> 39  ;\n36 -> 310  ;\n39  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n310  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];40 [label=\" degree < 0 (100%)\ndegree = 0 (83.6%) \"] ;\n40 -> 41 ;\n40 -> 42 \n41 [label=\" age < 32 (100%)\nage = 32 (76.5%) \"] ;\n41 -> 43  ;\n41 -> 44  ;\n43  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n44 [label=\" past earnings <= 35540.86 \"] ;\n44 -> 47  ;\n44 -> 48  ;\n47  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n48  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n42 [label=\" age < 38 (100%)\nage = 38 (10.3%) \"] ;\n42 -> 45  ;\n42 -> 46  ;\n45  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n46 [label=\" past earnings <= 28400 \"] ;\n46 -> 49  ;\n46 -> 410  ;\n49  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" vocational \"];\n410  [shape=box,style=filled,color=\".7 .3 1.0\" , label=\" computer \"];\n        top -> top2 [labeldistance=3, labelangle=-30, headlabel=\"True\"];\n        top -> top3 [labeldistance=3, labelangle=30, headlabel=\"False\"];\n        top2 -> 10;\n        top2 -> 20;\n        top3 -> 30;\n        top3 -> 40;\n      }\n    ","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="partial-adjustments" class="section level2" number="6">
 <h2><span class="header-section-number">6</span> Partial
@@ -4267,12 +4328,12 @@ p1 &lt;- ggplot(
   theme_minimal() +
   scale_color_discrete(
     labels = c(
-      expression(paste(&quot;Adjust &quot;, A[i])), expression(paste(&quot;Adjust &quot;, Gamma[&quot;d,i&quot;])),
-      expression(paste(&quot;Adjust &quot;, A[i], &quot; and &quot;, Gamma[&quot;d,i&quot;])))) +
+      expression(paste(&quot;Adjust &quot;, A)), expression(paste(&quot;Adjust &quot;, Gamma[&quot;d&quot;])),
+      expression(paste(&quot;Adjust &quot;, A, &quot; and &quot;, Gamma[&quot;d&quot;])))) +
   scale_linetype_discrete(
     labels = c(
-      expression(paste(&quot;Adjust &quot;, A[i])), expression(paste(&quot;Adjust &quot;, Gamma[&quot;d,i&quot;])),
-      expression(paste(&quot;Adjust &quot;, A[i], &quot; and &quot;, Gamma[&quot;d,i&quot;]))))
+      expression(paste(&quot;Adjust &quot;, A)), expression(paste(&quot;Adjust &quot;, Gamma[&quot;d&quot;])),
+      expression(paste(&quot;Adjust &quot;, A, &quot; and &quot;, Gamma[&quot;d&quot;]))))
 p2 &lt;- ggplot(
   results_partial[results_partial$Metric == &quot;CramerV&quot;, ],
   aes(x = Weight, y = Value, color = Scenario, linetype= Scenario)) +
@@ -4292,7 +4353,7 @@ p2 &lt;- ggplot(
       expression(paste(&quot;Adjust &quot;, A[i], &quot; and &quot;, Gamma[&quot;d,i&quot;]))))
 plot_combined &lt;- (p1 + p2) + plot_layout(guides = &quot;collect&quot;)
 plot_combined</code></pre>
-<p><img role="img" src="data:image/png;base64,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" width="720" /></p>
+<p><img role="img" src="data:image/png;base64,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" width="720" /></p>
 </div>
 <div id="winners-and-losers" class="section level2" number="7">
 <h2><span class="header-section-number">7</span> Winners and Losers</h2>
@@ -4312,11 +4373,11 @@ data_df &lt;- cbind(
     remove_selected_columns = TRUE
   ),
   welfare_adjusted = individual_welfare(
-    predict(tree = opt_tree_list[[&quot;pst_adjust_A&quot;]], A = As_org_out, sens = sens_org_out),
+    predict(tree = opt_tree_list[[&quot;pst_adjust_A_score&quot;]], A = As_org_out, sens = sens_org_out),
     scores_org_out
   ),
   welfare_unadjusted = individual_welfare(
-    predict(opt_tree_list[[&quot;pt_no_adjustments&quot;]], As_org_out),
+    predict(opt_tree_list[[&#39;pt_unadj_exclS&#39;]], As_org_out),
     scores_org_out
   )
 )
@@ -4401,403 +4462,403 @@ knitr::kable(
 <tbody>
 <tr class="odd">
 <td align="left">welfare_diff</td>
-<td align="right">-1.86</td>
-<td align="right">-0.82</td>
+<td align="right">-2.27</td>
+<td align="right">-1.00</td>
 <td align="right">0.00</td>
-<td align="right">0.93</td>
-<td align="right">1.99</td>
+<td align="right">0.95</td>
+<td align="right">1.97</td>
 </tr>
 <tr class="even">
 <td align="left">n</td>
-<td align="right">156.00</td>
-<td align="right">260.00</td>
-<td align="right">11061.00</td>
-<td align="right">232.00</td>
-<td align="right">151.00</td>
+<td align="right">115.00</td>
+<td align="right">314.00</td>
+<td align="right">11005.00</td>
+<td align="right">289.00</td>
+<td align="right">137.00</td>
 </tr>
 <tr class="odd">
 <td align="left">female</td>
-<td align="right">0.60</td>
-<td align="right">0.74</td>
-<td align="right">0.42</td>
-<td align="right">0.69</td>
-<td align="right">0.81</td>
+<td align="right">0.40</td>
+<td align="right">0.53</td>
+<td align="right">0.44</td>
+<td align="right">0.44</td>
+<td align="right">0.51</td>
 </tr>
 <tr class="even">
 <td align="left">swiss</td>
-<td align="right">0.61</td>
-<td align="right">0.44</td>
+<td align="right">0.74</td>
+<td align="right">0.50</td>
 <td align="right">0.64</td>
-<td align="right">0.58</td>
-<td align="right">0.70</td>
+<td align="right">0.56</td>
+<td align="right">0.64</td>
 </tr>
 <tr class="odd">
 <td align="left">age</td>
-<td align="right">43.05</td>
-<td align="right">43.54</td>
-<td align="right">36.13</td>
-<td align="right">43.28</td>
-<td align="right">43.74</td>
+<td align="right">40.50</td>
+<td align="right">41.19</td>
+<td align="right">36.28</td>
+<td align="right">40.99</td>
+<td align="right">41.09</td>
 </tr>
 <tr class="even">
 <td align="left">canton_moth_tongue</td>
-<td align="right">0.06</td>
-<td align="right">0.08</td>
+<td align="right">0.04</td>
+<td align="right">0.09</td>
 <td align="right">0.10</td>
-<td align="right">0.07</td>
+<td align="right">0.09</td>
 <td align="right">0.05</td>
 </tr>
 <tr class="odd">
 <td align="left">cw_age</td>
-<td align="right">45.51</td>
-<td align="right">44.07</td>
+<td align="right">42.99</td>
+<td align="right">42.49</td>
 <td align="right">44.14</td>
-<td align="right">44.18</td>
-<td align="right">43.25</td>
+<td align="right">45.37</td>
+<td align="right">46.94</td>
 </tr>
 <tr class="even">
 <td align="left">cw_cooperative</td>
-<td align="right">0.36</td>
-<td align="right">0.47</td>
+<td align="right">0.59</td>
 <td align="right">0.49</td>
-<td align="right">0.42</td>
-<td align="right">0.58</td>
+<td align="right">0.49</td>
+<td align="right">0.39</td>
+<td align="right">0.39</td>
 </tr>
 <tr class="odd">
 <td align="left">cw_educ_above_voc</td>
-<td align="right">0.47</td>
-<td align="right">0.48</td>
+<td align="right">0.33</td>
 <td align="right">0.46</td>
-<td align="right">0.44</td>
-<td align="right">0.39</td>
+<td align="right">0.46</td>
+<td align="right">0.48</td>
+<td align="right">0.54</td>
 </tr>
 <tr class="even">
 <td align="left">cw_educ_tertiary</td>
-<td align="right">0.22</td>
-<td align="right">0.14</td>
+<td align="right">0.41</td>
+<td align="right">0.19</td>
 <td align="right">0.20</td>
-<td align="right">0.18</td>
-<td align="right">0.28</td>
+<td align="right">0.15</td>
+<td align="right">0.17</td>
 </tr>
 <tr class="odd">
 <td align="left">cw_female</td>
 <td align="right">0.44</td>
-<td align="right">0.46</td>
+<td align="right">0.45</td>
 <td align="right">0.44</td>
-<td align="right">0.53</td>
-<td align="right">0.55</td>
+<td align="right">0.43</td>
+<td align="right">0.41</td>
 </tr>
 <tr class="even">
 <td align="left">cw_missing</td>
 <td align="right">0.02</td>
 <td align="right">0.05</td>
 <td align="right">0.05</td>
-<td align="right">0.05</td>
-<td align="right">0.11</td>
+<td align="right">0.04</td>
+<td align="right">0.08</td>
 </tr>
 <tr class="odd">
 <td align="left">cw_own_ue</td>
+<td align="right">0.70</td>
+<td align="right">0.59</td>
 <td align="right">0.62</td>
-<td align="right">0.55</td>
-<td align="right">0.62</td>
-<td align="right">0.68</td>
-<td align="right">0.78</td>
+<td align="right">0.64</td>
+<td align="right">0.73</td>
 </tr>
 <tr class="even">
 <td align="left">cw_tenure</td>
-<td align="right">5.85</td>
-<td align="right">5.78</td>
-<td align="right">5.53</td>
-<td align="right">5.63</td>
-<td align="right">4.56</td>
+<td align="right">4.83</td>
+<td align="right">5.44</td>
+<td align="right">5.52</td>
+<td align="right">5.99</td>
+<td align="right">5.79</td>
 </tr>
 <tr class="odd">
 <td align="left">cw_voc_degree</td>
-<td align="right">0.21</td>
-<td align="right">0.28</td>
+<td align="right">0.23</td>
+<td align="right">0.27</td>
 <td align="right">0.26</td>
-<td align="right">0.28</td>
-<td align="right">0.19</td>
+<td align="right">0.25</td>
+<td align="right">0.13</td>
 </tr>
 <tr class="even">
 <td align="left">emp_share_last_2yrs</td>
-<td align="right">0.79</td>
+<td align="right">0.73</td>
+<td align="right">0.77</td>
+<td align="right">0.81</td>
 <td align="right">0.79</td>
 <td align="right">0.81</td>
-<td align="right">0.77</td>
-<td align="right">0.78</td>
 </tr>
 <tr class="odd">
 <td align="left">emp_spells_5yrs</td>
-<td align="right">1.37</td>
+<td align="right">1.63</td>
+<td align="right">1.24</td>
 <td align="right">1.18</td>
-<td align="right">1.19</td>
-<td align="right">1.01</td>
-<td align="right">0.81</td>
+<td align="right">1.18</td>
+<td align="right">1.12</td>
 </tr>
 <tr class="even">
 <td align="left">employability</td>
-<td align="right">1.75</td>
-<td align="right">1.78</td>
-<td align="right">1.92</td>
-<td align="right">1.77</td>
 <td align="right">1.83</td>
+<td align="right">1.84</td>
+<td align="right">1.92</td>
+<td align="right">1.78</td>
+<td align="right">1.85</td>
 </tr>
 <tr class="odd">
 <td align="left">foreigner_b</td>
-<td align="right">0.12</td>
+<td align="right">0.09</td>
 <td align="right">0.20</td>
 <td align="right">0.13</td>
-<td align="right">0.14</td>
-<td align="right">0.08</td>
+<td align="right">0.15</td>
+<td align="right">0.11</td>
 </tr>
 <tr class="even">
 <td align="left">foreigner_c</td>
-<td align="right">0.27</td>
-<td align="right">0.36</td>
+<td align="right">0.17</td>
+<td align="right">0.30</td>
 <td align="right">0.23</td>
-<td align="right">0.28</td>
-<td align="right">0.22</td>
+<td align="right">0.29</td>
+<td align="right">0.26</td>
 </tr>
 <tr class="odd">
 <td align="left">gdp_pc</td>
+<td align="right">0.58</td>
+<td align="right">0.54</td>
 <td align="right">0.52</td>
-<td align="right">0.50</td>
-<td align="right">0.52</td>
-<td align="right">0.53</td>
-<td align="right">0.57</td>
+<td align="right">0.49</td>
+<td align="right">0.51</td>
 </tr>
 <tr class="even">
 <td align="left">married</td>
+<td align="right">0.52</td>
 <td align="right">0.64</td>
-<td align="right">0.68</td>
 <td align="right">0.46</td>
-<td align="right">0.60</td>
+<td align="right">0.63</td>
 <td align="right">0.58</td>
 </tr>
 <tr class="odd">
 <td align="left">other_mother_tongue</td>
-<td align="right">0.37</td>
-<td align="right">0.54</td>
+<td align="right">0.20</td>
+<td align="right">0.51</td>
 <td align="right">0.33</td>
-<td align="right">0.38</td>
-<td align="right">0.29</td>
+<td align="right">0.47</td>
+<td align="right">0.39</td>
 </tr>
 <tr class="even">
 <td align="left">past_income</td>
-<td align="right">28995.13</td>
-<td align="right">29097.88</td>
-<td align="right">43261.35</td>
-<td align="right">29137.46</td>
-<td align="right">30024.83</td>
+<td align="right">30618.35</td>
+<td align="right">31451.24</td>
+<td align="right">43133.18</td>
+<td align="right">31953.01</td>
+<td align="right">33462.26</td>
 </tr>
 <tr class="odd">
 <td align="left">ue_cw_allocation1</td>
+<td align="right">0.63</td>
 <td align="right">0.57</td>
-<td align="right">0.52</td>
 <td align="right">0.59</td>
-<td align="right">0.57</td>
-<td align="right">0.67</td>
+<td align="right">0.53</td>
+<td align="right">0.47</td>
 </tr>
 <tr class="even">
 <td align="left">ue_cw_allocation2</td>
-<td align="right">0.43</td>
-<td align="right">0.43</td>
+<td align="right">0.59</td>
+<td align="right">0.50</td>
 <td align="right">0.51</td>
-<td align="right">0.46</td>
-<td align="right">0.52</td>
+<td align="right">0.42</td>
+<td align="right">0.34</td>
 </tr>
 <tr class="odd">
 <td align="left">ue_cw_allocation3</td>
 <td align="right">0.04</td>
-<td align="right">0.06</td>
+<td align="right">0.04</td>
 <td align="right">0.04</td>
 <td align="right">0.06</td>
-<td align="right">0.03</td>
+<td align="right">0.01</td>
 </tr>
 <tr class="even">
 <td align="left">ue_cw_allocation4</td>
-<td align="right">0.04</td>
-<td align="right">0.09</td>
+<td align="right">0.06</td>
+<td align="right">0.11</td>
 <td align="right">0.08</td>
 <td align="right">0.10</td>
-<td align="right">0.05</td>
+<td align="right">0.04</td>
 </tr>
 <tr class="odd">
 <td align="left">ue_cw_allocation5</td>
-<td align="right">0.15</td>
-<td align="right">0.22</td>
-<td align="right">0.12</td>
 <td align="right">0.10</td>
-<td align="right">0.07</td>
+<td align="right">0.17</td>
+<td align="right">0.12</td>
+<td align="right">0.14</td>
+<td align="right">0.16</td>
 </tr>
 <tr class="even">
 <td align="left">ue_cw_allocation6</td>
-<td align="right">0.06</td>
-<td align="right">0.10</td>
-<td align="right">0.09</td>
 <td align="right">0.09</td>
 <td align="right">0.11</td>
+<td align="right">0.09</td>
+<td align="right">0.09</td>
+<td align="right">0.07</td>
 </tr>
 <tr class="odd">
 <td align="left">ue_spells_last_2yrs</td>
-<td align="right">0.79</td>
-<td align="right">0.79</td>
-<td align="right">0.56</td>
-<td align="right">0.47</td>
-<td align="right">0.48</td>
+<td align="right">0.90</td>
+<td align="right">0.81</td>
+<td align="right">0.55</td>
+<td align="right">0.67</td>
+<td align="right">0.54</td>
 </tr>
 <tr class="even">
 <td align="left">unemp_rate</td>
-<td align="right">3.57</td>
-<td align="right">3.18</td>
+<td align="right">4.20</td>
+<td align="right">3.58</td>
 <td align="right">3.51</td>
-<td align="right">3.61</td>
-<td align="right">4.03</td>
+<td align="right">3.34</td>
+<td align="right">3.46</td>
 </tr>
 <tr class="odd">
 <td align="left">qual_degree</td>
-<td align="right">0.48</td>
-<td align="right">0.26</td>
+<td align="right">0.47</td>
+<td align="right">0.28</td>
 <td align="right">0.59</td>
-<td align="right">0.42</td>
-<td align="right">0.26</td>
+<td align="right">0.33</td>
+<td align="right">0.20</td>
 </tr>
 <tr class="even">
 <td align="left">city_1</td>
-<td align="right">0.73</td>
-<td align="right">0.79</td>
+<td align="right">0.54</td>
+<td align="right">0.66</td>
 <td align="right">0.68</td>
-<td align="right">0.68</td>
-<td align="right">0.56</td>
+<td align="right">0.72</td>
+<td align="right">0.69</td>
 </tr>
 <tr class="odd">
 <td align="left">city_2</td>
+<td align="right">0.15</td>
+<td align="right">0.13</td>
 <td align="right">0.12</td>
 <td align="right">0.12</td>
-<td align="right">0.13</td>
-<td align="right">0.13</td>
-<td align="right">0.17</td>
+<td align="right">0.15</td>
 </tr>
 <tr class="even">
 <td align="left">city_3</td>
-<td align="right">0.15</td>
-<td align="right">0.10</td>
+<td align="right">0.31</td>
+<td align="right">0.21</td>
 <td align="right">0.20</td>
-<td align="right">0.19</td>
-<td align="right">0.27</td>
+<td align="right">0.16</td>
+<td align="right">0.15</td>
 </tr>
 <tr class="odd">
 <td align="left">prev_job_sec_cat_0</td>
-<td align="right">0.60</td>
-<td align="right">0.47</td>
+<td align="right">0.66</td>
+<td align="right">0.52</td>
 <td align="right">0.61</td>
-<td align="right">0.59</td>
-<td align="right">0.59</td>
+<td align="right">0.55</td>
+<td align="right">0.54</td>
 </tr>
 <tr class="even">
 <td align="left">prev_job_sec_cat_1</td>
-<td align="right">0.10</td>
-<td align="right">0.17</td>
+<td align="right">0.09</td>
+<td align="right">0.14</td>
 <td align="right">0.13</td>
-<td align="right">0.11</td>
-<td align="right">0.13</td>
+<td align="right">0.12</td>
+<td align="right">0.16</td>
 </tr>
 <tr class="odd">
 <td align="left">prev_job_sec_cat_2</td>
-<td align="right">0.25</td>
-<td align="right">0.31</td>
+<td align="right">0.23</td>
+<td align="right">0.29</td>
 <td align="right">0.17</td>
-<td align="right">0.25</td>
-<td align="right">0.25</td>
+<td align="right">0.22</td>
+<td align="right">0.22</td>
 </tr>
 <tr class="even">
 <td align="left">prev_job_sec_cat_3</td>
+<td align="right">0.02</td>
 <td align="right">0.05</td>
-<td align="right">0.04</td>
-<td align="right">0.09</td>
-<td align="right">0.06</td>
-<td align="right">0.04</td>
+<td align="right">0.08</td>
+<td align="right">0.10</td>
+<td align="right">0.08</td>
 </tr>
 <tr class="odd">
 <td align="left">prev_job_0</td>
-<td align="right">0.52</td>
-<td align="right">0.38</td>
-<td align="right">0.61</td>
-<td align="right">0.43</td>
+<td align="right">0.63</td>
+<td align="right">0.44</td>
 <td align="right">0.62</td>
+<td align="right">0.37</td>
+<td align="right">0.45</td>
 </tr>
 <tr class="even">
 <td align="left">prev_job_1</td>
 <td align="right">0.04</td>
-<td align="right">0.01</td>
+<td align="right">0.04</td>
 <td align="right">0.07</td>
 <td align="right">0.03</td>
-<td align="right">0.01</td>
+<td align="right">0.03</td>
 </tr>
 <tr class="odd">
 <td align="left">prev_job_2</td>
-<td align="right">0.43</td>
-<td align="right">0.61</td>
-<td align="right">0.28</td>
+<td align="right">0.30</td>
 <td align="right">0.51</td>
-<td align="right">0.36</td>
+<td align="right">0.28</td>
+<td align="right">0.59</td>
+<td align="right">0.52</td>
 </tr>
 <tr class="even">
 <td align="left">prev_job_3</td>
+<td align="right">0.03</td>
 <td align="right">0.01</td>
+<td align="right">0.03</td>
+<td align="right">0.02</td>
 <td align="right">0.00</td>
-<td align="right">0.03</td>
-<td align="right">0.03</td>
-<td align="right">0.01</td>
 </tr>
 <tr class="odd">
 <td align="left">qual_0</td>
-<td align="right">0.48</td>
-<td align="right">0.26</td>
+<td align="right">0.47</td>
+<td align="right">0.28</td>
 <td align="right">0.59</td>
-<td align="right">0.42</td>
-<td align="right">0.26</td>
+<td align="right">0.33</td>
+<td align="right">0.20</td>
 </tr>
 <tr class="even">
 <td align="left">qual_1</td>
+<td align="right">0.12</td>
 <td align="right">0.23</td>
-<td align="right">0.27</td>
-<td align="right">0.16</td>
-<td align="right">0.17</td>
-<td align="right">0.23</td>
+<td align="right">0.15</td>
+<td align="right">0.25</td>
+<td align="right">0.42</td>
 </tr>
 <tr class="odd">
 <td align="left">qual_2</td>
-<td align="right">0.25</td>
-<td align="right">0.43</td>
+<td align="right">0.37</td>
+<td align="right">0.45</td>
 <td align="right">0.22</td>
-<td align="right">0.35</td>
-<td align="right">0.44</td>
+<td align="right">0.38</td>
+<td align="right">0.31</td>
 </tr>
 <tr class="even">
 <td align="left">qual_3</td>
-<td align="right">0.04</td>
-<td align="right">0.05</td>
 <td align="right">0.03</td>
+<td align="right">0.04</td>
+<td align="right">0.03</td>
+<td align="right">0.04</td>
 <td align="right">0.06</td>
-<td align="right">0.07</td>
 </tr>
 <tr class="odd">
 <td align="left">welfare_adjusted</td>
-<td align="right">14.42</td>
-<td align="right">13.84</td>
-<td align="right">18.11</td>
-<td align="right">15.33</td>
-<td align="right">16.23</td>
+<td align="right">14.36</td>
+<td align="right">13.90</td>
+<td align="right">18.13</td>
+<td align="right">15.09</td>
+<td align="right">16.18</td>
 </tr>
 <tr class="even">
 <td align="left">welfare_unadjusted</td>
-<td align="right">16.28</td>
-<td align="right">14.67</td>
-<td align="right">18.10</td>
-<td align="right">14.40</td>
-<td align="right">14.23</td>
+<td align="right">16.62</td>
+<td align="right">14.90</td>
+<td align="right">18.13</td>
+<td align="right">14.14</td>
+<td align="right">14.21</td>
 </tr>
 </tbody>
 </table>
