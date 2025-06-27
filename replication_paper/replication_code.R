@@ -24,7 +24,8 @@ library(kableExtra)
 library(cluster)
 
 # Data source path
-DATA_PATH <- "D:/Fabian_Muny/Data_fair/cleaned"
+# DATA_PATH <- "D:/Fabian_Muny/Data_fair/cleaned"
+DATA_PATH <- "Q:/SEW/Projekte/NFP77/BeLeMaMu.Fairness/Data_fair/cleaned"
 SET_STR = "05_application"
 OUTCOME = "outcome0131"
 
@@ -46,8 +47,8 @@ set.seed(SEED)
 
 # Save outputs
 save <- TRUE
-RESULTS_PATH <- paste0(
-  "D:/Fabian_Muny/Results_fair/")
+# RESULTS_PATH <- "D:/Fabian_Muny/Results_fair/"
+RESULTS_PATH <- "Q:/SEW/Projekte/NFP77/BeLeMaMu.Fairness/Results_fair/"
 if(save){
   folder_name <- format(Sys.Date(), "%Y-%m-%d")
   RESULTS_PATH <- paste0(RESULTS_PATH, folder_name, "_depth", PT_DEPTH, "_", OUTCOME, "/")
@@ -213,7 +214,7 @@ df_fullplot <- df_fullplot %>% mutate(
   type = if_else(str_ends(name, "_mq"), "Adjusted variable", "Original variable"),
   name = str_remove(name, "_mq"),
   program_number = str_match(name, paste0(OUTCOME, "_lc([0-9]+)_un_lc_pot_eff"))[, 2],
-  name = if_else(!is.na(program_number), paste0("Policy score (", map_prog[program_number], ")"), name),
+  name = if_else(!is.na(program_number), paste0("Score (", map_prog[program_number], ")"), name),
   name = if_else(name == "age", "Age", name),
   name = if_else(name == "past_income", "Past earnings", name),
   name = if_else(name == "qual_degree", "Degree", name)
@@ -574,7 +575,7 @@ print(sum(predict(opt_tree_list[['pt_adjust_Acdf']], As_cdf) != Dstar_org_Acdf_t
 # ------------ Export results table to latex -----------------------------------
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --
 for (name in names(results_list)) {
-  sample_txt <- if(name=="evaluation") "out-of-sample" else "in-sample"
+  sample_txt <- if(name=="evaluation") "sample 3" else "sample 2"
   results_export_out <- results_list[[name]]
   # Select columns to export
   cols_to_export <- c(
@@ -627,13 +628,15 @@ for (name in names(results_list)) {
     "welfare, and fairness for various policy types.",
     "The column labeled \\\\textit{Interp.} indicates whether the policy is interpretable. The \\\\textit{Welfare} column reports",
     "the mean potential outcome under the assignments of the respective policy. The next three columns",
-    "display fairness metrics: Cramer's V, its associated p-value, and the logarithm of the Bayes Factor.",
+    "display fairness metrics: Cramer's V, p-value of its associated $\\\\chi^2$-statistic, and the logarithm of the Bayes Factor.",
     "The remaining columns report the resulting program shares under each policy, with \\\\textit{NP} = No Program,",
     "\\\\textit{JS} = Job Search, \\\\textit{VC} = Vocational Course, \\\\textit{CC} = Computer Course,",
     "\\\\textit{LC} = Language Course, \\\\textit{EP} = Employment Program."
   )
   if(name=="evaluation"){
-    note <- paste(note, "Statistics are computed out-of-sample using data not used for estimating policy scores or training the policy tree.")
+    note <- paste(note, "Statistics for trees are computed out-of-sample on data not used for estimating scores or training the policy tree.")
+  }else{
+    note <- paste(note, "Statistics for trees are computed in-sample on the data used for training the policy tree.")
   }
   results_export_out_latex <- kable(results_export_out, format = "latex", escape = FALSE, booktabs=T,
                                     caption = paste0("Welfare-Fairness-Interpretability trade-off for different policies (", sample_txt,")"),
@@ -880,14 +883,14 @@ for(set_name in names(data_list2)) {
   colnames(df_grouped_means) <- c("Variable", generate_cluster_labels(
     round(as.numeric(subset(df_grouped_means, variable == 'welfare_diff')[, -1]),2)))
 
-  add <- if(set_name=="pst_adjust_A_score") " and policy scores" else ""
+  add <- if(set_name=="pst_adjust_A_score") " and scores" else ""
   note <- paste0(
     "\\\\setstretch{1}\\\\scriptsize \\\\textit{Notes:} ",
-    "The table shows mean values of variables within clusters obtained via k-means clustering. ",
+    "The table shows mean values of variables within clusters obtained via $K$-means clustering. ",
     "Clustering is based on the difference in welfare between optimal policy trees with ",
     "adjustment (of decision variables",
     add,
-    ") and without adjustments. The number of clusters is determined in a data-driven ",
+    ") and without adjustments (excl. $S$). The number of clusters is determined in a data-driven ",
     "way by the Silhouette score and the minimum required cluster size is set to 1\\\\% of the observations.")
 
   # Loop through numeric columns

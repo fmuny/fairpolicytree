@@ -63,7 +63,7 @@ mq_adjustment <- function(
     quantiles <- numeric(no_of_obs)
     for (key in names(groups)) {
       idx <- groups[[key]]
-      quantiles[idx] <- rank(vars_col[idx], ties.method=ties.method)/length(idx)
+      quantiles[idx] <- (rank(vars_col[idx], ties.method=ties.method)-1)/(length(idx)-1)
     }
     vars_cdf[[col]] <- quantiles
     if(is.numeric(quantile.type) && quantile.type %% 1 == 0 && quantile.type >= 1 && quantile.type <= 9){
