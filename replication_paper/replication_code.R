@@ -640,7 +640,7 @@ for (name in names(results_list)) {
   }
   results_export_out_latex <- kable(results_export_out, format = "latex", escape = FALSE, booktabs=T,
                                     caption = paste0("Welfare-Fairness-Interpretability trade-off for different policies (", sample_txt,")"),
-                                    label = paste0("tab:main_results_", substr(sample_txt,1,2)), align='llrrrrrrrrrr', full_width = T) %>%
+                                    label = paste0("tab:main_results_", sample_txt), align='llrrrrrrrrrr', full_width = T) %>%
     kable_styling(latex_options = c("HOLD_position"), font_size = 8) %>%
     add_header_above(c(" " = 3, "Fairness" = 3, "Program shares" = 6), bold = T, line=T) %>%
     pack_rows("Benchmark policies", 1, 4) %>%
@@ -648,7 +648,7 @@ for (name in names(results_list)) {
     pack_rows(paste0("Probabilistic split tree (depth ", PT_DEPTH, ")"), 10, 11) %>%
     # column_spec(6, width = "2cm") %>%
     footnote(general = note, footnote_as_chunk=T, general_title="", threeparttable = T, escape = FALSE)
-  writeLines(results_export_out_latex, paste0(RESULTS_PATH, "main_results_", substr(sample_txt,1,2), ".tex"))
+  writeLines(results_export_out_latex, paste0(RESULTS_PATH, "main_results_", sample_txt, ".tex"))
 }
 
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --
