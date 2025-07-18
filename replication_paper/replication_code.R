@@ -1,5 +1,5 @@
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --
-# Replication Code for *Interpretable Policy Learning with Sensitive Attributes
+# Replication Code for *Fairness-Aware and Interpretable Policy Learning*
 # Nora Bearth, Michael Lechner, Jana Mareckova, Fabian Muny
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --
 
@@ -106,7 +106,7 @@ df_plot <- training_df %>%
     names_to = "variable",
     values_to = "value")
 print(ggplot(
-    df_plot, aes(x = value)) +
+  df_plot, aes(x = value)) +
     geom_histogram(aes(y = after_stat(density)), colour = 'gray', bins=32, fill = "white") +
     geom_density(alpha = 0.5) +
     theme_minimal() +
@@ -341,7 +341,7 @@ for (set_name in names(datasets)) {
     log(0),
     compute_prog_freq(D_allin1 - 1)
   )
-
+  
   results_list[[set_name]] <- as.data.frame(res)
 }
 
@@ -606,16 +606,16 @@ for (name in names(results_list)) {
   ))
   results_export_out <- cbind(policies, data.frame(results_export_out, row.names=NULL))
   colnames(results_export_out) <- c(
-    "\\textbf{Policy}", "\\textbf{Interp.}", "\\textbf{Welfare}", "CramerV",
-    "p-value", "log(BF)", "NP", "JS", "VC", "CC", "LC", "EP")
-
+    "\\textbf{Policy}", "\\textbf{Interpret.}", "\\textbf{Policy value}", "Cram.V",
+    "p-val.", "log(BF)", "NP", "JS", "VC", "CC", "LC", "EP")
+  
   # Manually adjust columns
   results_export_out <- results_export_out %>%
-    mutate(`\\textbf{Welfare}` = round(as.numeric(`\\textbf{Welfare}`), 3),
-           `CramerV` = round(as.numeric(`CramerV`), 3),
-           `p-value` = round(as.numeric(`p-value`), 3),
+    mutate(`\\textbf{Policy value}` = round(as.numeric(`\\textbf{Policy value}`), 3),
+           `Cram.V` = round(as.numeric(`Cram.V`), 3),
+           `p-val.` = round(as.numeric(`p-val.`), 3),
            `log(BF)` = round(as.numeric(`log(BF)`), 3),
-           `\\textbf{Interp.}` = ifelse(`\\textbf{Interp.}` == 1, "True", "False"),)
+           `\\textbf{Interpret.}` = ifelse(`\\textbf{Interpret.}` == 1, "True", "False"),)
   #Transform treatment shares to percentages
   results_export_out <- results_export_out %>%
     mutate(across(
@@ -625,8 +625,8 @@ for (name in names(results_list)) {
   results_export_out[["log(BF)"]] <- format(round(results_export_out[["log(BF)"]], 0), nsmall = 0)
   note = paste(
     "\\\\setstretch{1}\\\\scriptsize \\\\textit{Notes:} This table presents measures of interpretability,",
-    "welfare, and fairness for various policy types.",
-    "The column labeled \\\\textit{Interp.} indicates whether the policy is interpretable. The \\\\textit{Welfare} column reports",
+    "policy value, and fairness for various policy types.",
+    "The column labeled \\\\textit{Interpret.} indicates whether the policy is interpretable. The column labeled \\\\textit{Policy value} reports",
     "the mean potential outcome under the assignments of the respective policy. The next three columns",
     "display fairness metrics: Cramer's V, p-value of its associated $\\\\chi^2$-statistic, and the logarithm of the Bayes Factor.",
     "The remaining columns report the resulting program shares under each policy, with \\\\textit{NP} = No Program,",
@@ -639,7 +639,7 @@ for (name in names(results_list)) {
     note <- paste(note, "Statistics for trees are computed in-sample on the data used for training the policy tree.")
   }
   results_export_out_latex <- kable(results_export_out, format = "latex", escape = FALSE, booktabs=T,
-                                    caption = paste0("Welfare-Fairness-Interpretability trade-off for different policies (", sample_txt,")"),
+                                    caption = paste0("Policy Value-Fairness-Interpretability trade-off for different policies (", sample_txt,")"),
                                     label = paste0("tab:main_results_", sample_txt), align='llrrrrrrrrrr', full_width = T) %>%
     kable_styling(latex_options = c("HOLD_position"), font_size = 8) %>%
     add_header_above(c(" " = 3, "Fairness" = 3, "Program shares" = 6), bold = T, line=T) %>%
@@ -648,6 +648,11 @@ for (name in names(results_list)) {
     pack_rows(paste0("Probabilistic split tree (depth ", PT_DEPTH, ")"), 10, 11) %>%
     # column_spec(6, width = "2cm") %>%
     footnote(general = note, footnote_as_chunk=T, general_title="", threeparttable = T, escape = FALSE)
+  results_export_out_latex <- gsub(
+    "\\multicolumn{3}{c}{\\textbf{ }} & \\multicolumn{3}{c}{\\textbf{Fairness}} & \\multicolumn{6}{c}{\\textbf{Program shares}} \\\\\n\\cmidrule(l{3pt}r{3pt}){4-6} \\cmidrule(l{3pt}r{3pt}){7-12}\n\\textbf{Policy} & \\textbf{Interpret.} & \\textbf{Policy value} & Cram.V & p-val. & log(BF) & NP & JS & VC & CC & LC & EP\\\\\n",
+    "\\multirow{2}{*}{\\textbf{Policy}} & \\multirow{2}{*}{\\makecell{\\textbf{Inter-}\\\\[-1ex]\\textbf{pret.}}} &  \\multirow{2}{*}{\\makecell{\\textbf{Policy}\\\\[-1ex]\\textbf{value}}} & \\multicolumn{3}{c}{\\textbf{Fairness}} & \\multicolumn{6}{c}{\\textbf{Program shares}} \\\\\n\\cmidrule(l{3pt}r{3pt}){4-6} \\cmidrule(l{3pt}r{3pt}){7-12}\n& &  & Cram.V & p-val. & log(BF) & NP & JS & VC & CC & LC & EP\\\\\n",
+    results_export_out_latex,
+    fixed=TRUE)
   writeLines(results_export_out_latex, paste0(RESULTS_PATH, "main_results_", sample_txt, ".tex"))
 }
 
@@ -705,7 +710,7 @@ range_CramerV <- results_partial %>% filter(Metric == "CramerV") %>%
 # Plot
 p1 <- ggplot(results_partial[results_partial$Metric == "Welfare", ], aes(x = Weight, y = Value, color = Scenario, linetype= Scenario)) +
   geom_line(linewidth=0.7) +
-  labs(title = "Welfare", x = "Weight of adjusted variable", color = "Scenario:", linetype= "Scenario:") +
+  labs(title = "Policy Value", x = "Weight of adjusted variable", color = "Scenario:", linetype= "Scenario:") +
   ylim(range_Welfare$min_val, range_Welfare$max_val) +
   theme_minimal() +
   scale_color_discrete(labels = c(expression(paste("Adjust ", A)), expression(paste("Adjust ", Gamma["d"])), expression(paste("Adjust ", A, " and ", Gamma["d"])))) +
@@ -779,7 +784,7 @@ vars_short <- c(
 
 # Adjust variable names
 map_varnames <- c(
-  "welfare_diff" = "Welfare difference",
+  "welfare_diff" = "Difference in policy value",
   "n" = "Number of observations in cluster",
   "female" = "Job seeker is female",
   "swiss" = "Swiss citizen",
@@ -803,12 +808,12 @@ map_varnames <- c(
   "married" = "Job seeker is married",
   "other_mother_tongue" = "Mother tongue other than German, French, Italian",
   "past_income" = "Earnings in CHF before unemployment",
-  "ue_cw_allocation1" = "Allocation of unemployed to caseworkers: by industry",
-  "ue_cw_allocation2" = "Allocation of unemployed to caseworkers: by occupation",
-  "ue_cw_allocation3" = "Allocation of unemployed to caseworkers: by age",
-  "ue_cw_allocation4" = "Allocation of unemployed to caseworkers: by employability",
-  "ue_cw_allocation5" = "Allocation of unemployed to caseworkers: by region",
-  "ue_cw_allocation6" = "Allocation of unemployed to caseworkers: other",
+  "ue_cw_allocation1" = "Allocation to caseworker: by industry",
+  "ue_cw_allocation2" = "Allocation to caseworker: by occupation",
+  "ue_cw_allocation3" = "Allocation to caseworker: by age",
+  "ue_cw_allocation4" = "Allocation to caseworker: by employability",
+  "ue_cw_allocation5" = "Allocation to caseworker: by region",
+  "ue_cw_allocation6" = "Allocation to caseworker: other",
   "ue_spells_last_2yrs" = "Unemployment spells in last 2 years",
   "unemp_rate" = "Cantonal unemployment rate (in %)",
   "city_3" = "Lives in big city",
@@ -852,7 +857,7 @@ for(set_name in names(data_list2)) {
   # Compute the difference between actual and reference welfare.
   data_df$welfare_diff <- data_df$welfare_adjusted - data_df$welfare_unadjusted
   welfare_diff_matrix <- matrix(data_df$welfare_diff, ncol = 1)
-
+  
   # Determine optimal number of clusters using Silhouette score
   dist_matrix <- stats::dist(welfare_diff_matrix)
   min_cluster_size <- ceiling(nrow(data_df) / 100)
@@ -879,20 +884,20 @@ for(set_name in names(data_list2)) {
     pivot_wider(names_from = cluster_ids, values_from = mean) %>%
     arrange(factor(variable, levels = c("welfare_diff", setdiff(variable, "welfare_diff")))) %>%
     mutate(across(where(is.numeric), round, 2))
-
+  
   colnames(df_grouped_means) <- c("Variable", generate_cluster_labels(
     round(as.numeric(subset(df_grouped_means, variable == 'welfare_diff')[, -1]),2)))
-
-  add <- if(set_name=="pst_adjust_A_score") " and scores" else ""
+  
+  add <- if(set_name=="pst_adjust_A_score") " and $\\\\Gamma_d$" else ""
   note <- paste0(
     "\\\\setstretch{1}\\\\scriptsize \\\\textit{Notes:} ",
-    "The table shows mean values of variables within clusters obtained via $K$-means clustering. ",
-    "Clustering is based on the difference in welfare between optimal policy trees with ",
-    "adjustment (of decision variables",
+    "The table shows mean values of variables within clusters obtained via $K$-means++ clustering. ",
+    "Clustering is based on the difference in policy value between a fairness-aware policy tree ",
+    "(adjusted $A$",
     add,
-    ") and without adjustments (excl. $S$). The number of clusters is determined in a data-driven ",
+    ") and a fairness-unaware policy tree (excl. $S$). The number of clusters is determined in a data-driven ",
     "way by the Silhouette score and the minimum required cluster size is set to 1\\\\% of the observations.")
-
+  
   # Loop through numeric columns
   df_grouped_means <- as.data.frame(df_grouped_means)
   for (col in names(df_grouped_means)[-1]) {
@@ -902,7 +907,7 @@ for(set_name in names(data_list2)) {
       formatC(df_grouped_means[[col]], format = "f", digits = 2)
     )
   }
-
+  
   # Create short table
   df_grouped_means_short <- df_grouped_means[df_grouped_means$Variable %in% vars_short,]
   df_grouped_means_short <- df_grouped_means_short %>%
@@ -911,7 +916,7 @@ for(set_name in names(data_list2)) {
     mutate(Variable = as.character(Variable))
   df_grouped_means_short$Variable <- map_varnames[df_grouped_means_short$Variable]
   kmeans_results[[set_name]][['short']] <- df_grouped_means_short
-
+  
   # Create long table
   df_grouped_means_long <- df_grouped_means[!df_grouped_means$Variable %in% c(
     "welfare_adjusted", "welfare_unadjusted"), ]
@@ -921,8 +926,8 @@ for(set_name in names(data_list2)) {
   df_grouped_means_long$Variable <- map_varnames[df_grouped_means_long$Variable]
   rownames(df_grouped_means_long) <- NULL
   kmeans_results[[set_name]][['long']] <- df_grouped_means_long
-
-
+  
+  
   if(save){
     kmeans_export_latex_short <- kable(
       df_grouped_means_short, format = "latex", escape = T, booktabs=T, linesep = "",
@@ -930,20 +935,20 @@ for(set_name in names(data_list2)) {
       label = paste0("tab:kmeans_short_", set_name), align=paste0("l", strrep("r", n_clusters)), full_width = T,
       latex_header_includes = c("\\renewcommand{\\arraystretch}{2}"))%>%
       kable_styling(latex_options = c("HOLD_position"), font_size = 8) %>%
-      add_header_above(c(" " = 1, "Cluster (sorted by welfare change)" = n_clusters), bold = T, line=T) %>%
+      add_header_above(c(" " = 1, "Cluster (sorted by policy value change)" = n_clusters), bold = T, line=T) %>%
       footnote(general = note, footnote_as_chunk=T, general_title="", threeparttable = T, escape = FALSE) %>%
       row_spec(c(2,4,7), hline_after = TRUE) %>%
       column_spec(2:(n_clusters+1), width = "1.5cm")
     kmeans_export_latex_short <- gsub("midrule\\\\", "midrule", kmeans_export_latex_short, fixed = TRUE)
     writeLines(kmeans_export_latex_short, paste0(RESULTS_PATH, "kmeans_short_", set_name,".tex"))
-
+    
     kmeans_export_latex_long <- kable(
       df_grouped_means_long, format = "latex", escape = T, booktabs=T, linesep = "",
       caption = "Covariate means of winners and losers from fairness-based reassignment (all covariates)",
       label = paste0("tab:kmeans_long_", set_name), align=paste0("l", strrep("r", n_clusters)), full_width = T,
       latex_header_includes = c("\\renewcommand{\\arraystretch}{2}"))%>%
       kable_styling(latex_options = c("HOLD_position"), font_size = 8) %>%
-      add_header_above(c(" " = 1, "Cluster (sorted by welfare change)" = n_clusters), bold = T, line=T) %>%
+      add_header_above(c(" " = 1, "Cluster (sorted by policy value change)" = n_clusters), bold = T, line=T) %>%
       footnote(general = note, footnote_as_chunk=T, general_title="", threeparttable = T, escape = FALSE) %>%
       row_spec(c(2,4,7), hline_after = TRUE) %>%
       column_spec(2:(n_clusters+1), width = "1.5cm")

@@ -1,6 +1,6 @@
 # Interpretable Policy Learning with Sensitive Attributes
 
-Welcome to the repository for the **fairpolicytree** package, developed as part of the research paper _Interpretable Policy Learning with Sensitive Attributes_.
+Welcome to the repository for the **fairpolicytree** package, developed as part of the research paper _Fairness-Aware and Interpretable Policy Learning_.
 
 This repository provides:
 
@@ -32,7 +32,7 @@ Open the [replication notebook](https://fmuny.github.io/fairpolicytree/replicati
 
 If you use this package or replication materials, please cite the paper:
 
-> *Bearth, N., Lechner, M., Mareckova, J., Muny, F.* (2025). **Interpretable Policy Learning with Sensitive Attributes**. *Mimeo*.
+> *Bearth, N., Lechner, M., Mareckova, J., Muny, F.* (2025). **Fairness-Aware and Interpretable Policy Learning**. *Mimeo*.
 
 ## 📜 License
 
