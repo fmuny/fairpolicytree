@@ -4,12 +4,16 @@
 \alias{print.prob_split_tree_list}
 \title{Print a List of Probabilistic Split Trees.}
 \usage{
-\method{print}{prob_split_tree_list}(tree_list, sens_names = NULL)
+\method{print}{prob_split_tree_list}(x, ...)
 }
 \arguments{
-\item{sens_names}{The variables names of the sensitive attributes.}
+\item{x}{A fitted object of class `'prob_split_tree_list'`.}
 
-\item{tree}{A fitted object of class `'prob_split_tree_list'`.}
+\item{...}{Additional arguments passed to the printing function.
+Currently supports:
+\describe{
+  \item{`sens_names`}{Character vector, the variables names of the sensitive attributes.}
+}}
 }
 \description{
 Print a List of Probabilistic Split Trees.

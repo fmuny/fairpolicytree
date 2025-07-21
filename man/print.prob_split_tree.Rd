@@ -4,10 +4,12 @@
 \alias{print.prob_split_tree}
 \title{Print a Probabilistic Split Tree.}
 \usage{
-\method{print}{prob_split_tree}(tree)
+\method{print}{prob_split_tree}(x, ...)
 }
 \arguments{
-\item{tree}{A fitted object of class `'prob_split_tree'`.}
+\item{x}{A fitted object of class `'prob_split_tree'`.}
+
+\item{...}{Currently ignored.}
 }
 \description{
 Print a Probabilistic Split Tree.

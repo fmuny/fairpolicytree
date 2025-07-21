@@ -4,14 +4,17 @@
 \alias{plot.prob_split_tree_list}
 \title{Plot a List of Probabilistic Split Trees.}
 \usage{
-\method{plot}{prob_split_tree_list}(tree_list, sens_names = NULL, leaf.labels = NULL)
+\method{plot}{prob_split_tree_list}(x, ...)
 }
 \arguments{
-\item{sens_names}{The variables names of the sensitive attributes.}
+\item{x}{A fitted object of class `'prob_split_tree_list'`.}
 
-\item{leaf.labels}{An optional character vector of leaf labels for each treatment.}
-
-\item{tree}{A fitted object of class `'prob_split_tree_list'`.}
+\item{...}{Additional arguments passed to the plotting function.
+Currently supports:
+\describe{
+  \item{`sens_names`}{An optional character vector of variables names of the sensitive attributes.}
+  \item{`leaf.labels`}{An optional character vector of leaf labels for each treatment.}
+}}
 }
 \description{
 Plot a List of Probabilistic Split Trees.

@@ -10,6 +10,9 @@ Description:
     essential, such as treatment assignment in public policy contexts.
 Depends:
     R (>= 3.5.0)
+Imports:
+    DiagrammeR,
+    policytree
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.2

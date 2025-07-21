@@ -67,7 +67,7 @@ mq_adjustment <- function(
     }
     vars_cdf[[col]] <- quantiles
     if(is.numeric(quantile.type) && quantile.type %% 1 == 0 && quantile.type >= 1 && quantile.type <= 9){
-      vars_mq[[col]] <- quantile(x=vars_col, probs=quantiles, type=quantile.type)
+      vars_mq[[col]] <- stats::quantile(x=vars_col, probs=quantiles, type=quantile.type)
     } else if (quantile.type=="reshuffled") {
       vars_col_sorted <- sort(vars_col)
       indices <- rank(quantiles, ties.method = ties.method)
@@ -114,19 +114,19 @@ simulate_fairness_data <- function(n = 1000, seed = 123456) {
   #-- Main computation --#
   set.seed(seed)
   # Step 1: Generate two correlated binary sensitive attributes
-  sens1 <- rbinom(n, 1, 0.5)
-  sens2 <- rbinom(n, 1, 0.4 + 0.3 * sens1)  # sens2 correlated with sens1
+  sens1 <- stats::rbinom(n, 1, 0.5)
+  sens2 <- stats::rbinom(n, 1, 0.4 + 0.3 * sens1)  # sens2 correlated with sens1
   sens <- data.frame(sens1 = sens1, sens2 = sens2)
   # Step 2: Decision variables (correlated with sensitive attributes)
   logit_dec_bin <- -0.5 + 0.8 * sens1 + 0.6 * sens2
   prob_dec_bin <- 1 / (1 + exp(-logit_dec_bin))
-  dec_bin <- rbinom(n, 1, prob_dec_bin)
-  dec_cont <- 0.3 * sens1 + 0.5 * sens2 + rnorm(n)
+  dec_bin <- stats::rbinom(n, 1, prob_dec_bin)
+  dec_cont <- 0.3 * sens1 + 0.5 * sens2 + stats::rnorm(n)
   decision <- data.frame(dec_bin = dec_bin, dec_cont = dec_cont)
   # Step 3: Policy score variables (continuous, correlated with all above)
   X <- as.matrix(cbind(sens, decision))
-  score0 <- X %*% c(0.4, -0.6, 0.5, 0.2) + rnorm(n, sd = 0.5)
-  score1 <- X %*% c(-0.2, 0.3, 0.6, -0.4) + 1 + rnorm(n, sd = 0.5)
+  score0 <- X %*% c(0.4, -0.6, 0.5, 0.2) + stats::rnorm(n, sd = 0.5)
+  score1 <- X %*% c(-0.2, 0.3, 0.6, -0.4) + 1 + stats::rnorm(n, sd = 0.5)
   scores <- data.frame(score0 = as.numeric(score0), score1 = as.numeric(score1))
   return(list(sens = sens, decision = decision, scores = scores))
 }
@@ -642,12 +642,19 @@ predict.prob_split_tree <- function(
 
 
 #' Plot a Probabilistic Split Tree.
-#' @param tree A fitted object of class `'prob_split_tree'`.
-#' @param leaf.labels An optional character vector of leaf labels for each treatment.
+#' @param x A fitted object of class `'prob_split_tree'`.
+#' @param ... Additional arguments passed to the plotting function.
+#'   Currently supports:
+#'   \describe{
+#'     \item{`leaf.labels`}{An optional character vector of leaf labels for each treatment.}
+#'   }
 
 #' @method plot prob_split_tree
 #' @export
-plot.prob_split_tree <- function(tree, leaf.labels = NULL){
+plot.prob_split_tree <- function(x, ...){
+  tree <- x
+  args <- list(...)
+  leaf.labels <- if (!is.null(args$leaf.labels)) args$leaf.labels else NULL
   # Check if prob_split_tree tree
   if (!inherits(tree, "prob_split_tree")) {
     stop("`tree` must be a fitted probabilistic split tree (class 'prob_split_tree').")
@@ -696,12 +703,14 @@ plot.prob_split_tree <- function(tree, leaf.labels = NULL){
 
 
 #' Print a Probabilistic Split Tree.
-#' @param tree A fitted object of class `'prob_split_tree'`.
-
+#' @param x A fitted object of class `'prob_split_tree'`.
+#' @param ... Currently ignored.
+#'
 #' @method print prob_split_tree
 #' @export
-print.prob_split_tree <- function(tree) {
+print.prob_split_tree <- function(x, ...) {
   # Check if prob_split_tree tree
+  tree <- x
   if (!inherits(tree, "prob_split_tree")) {
     stop("`tree` must be a fitted probabilistic split tree (class 'prob_split_tree').")
   }
@@ -776,13 +785,19 @@ print.prob_split_tree <- function(tree) {
 
 
 #' Print a List of Probabilistic Split Trees.
-#' @param tree A fitted object of class `'prob_split_tree_list'`.
-#' @param sens_names The variables names of the sensitive attributes.
+#' @param x A fitted object of class `'prob_split_tree_list'`.
+#' @param ... Additional arguments passed to the printing function.
+#'   Currently supports:
+#'   \describe{
+#'     \item{`sens_names`}{Character vector, the variables names of the sensitive attributes.}
+#'   }
 #'
 #' @method print prob_split_tree_list
 #' @export
-print.prob_split_tree_list <- function(
-    tree_list, sens_names=NULL){
+print.prob_split_tree_list <- function(x, ...){
+  tree_list <- x
+  args <- list(...)
+  sens_names <- if (!is.null(args$sens_names)) args$sens_names else NULL
   if (!inherits(tree_list, "prob_split_tree_list")) {
     stop("`tree_list` must be of class 'prob_split_tree_list'.")
   }
@@ -808,14 +823,21 @@ print.prob_split_tree_list <- function(
 
 
 #' Plot a List of Probabilistic Split Trees.
-#' @param tree A fitted object of class `'prob_split_tree_list'`.
-#' @param sens_names The variables names of the sensitive attributes.
-#' @param leaf.labels An optional character vector of leaf labels for each treatment.
+#' @param x A fitted object of class `'prob_split_tree_list'`.
+#' @param ... Additional arguments passed to the plotting function.
+#'   Currently supports:
+#'   \describe{
+#'     \item{`sens_names`}{An optional character vector of variables names of the sensitive attributes.}
+#'     \item{`leaf.labels`}{An optional character vector of leaf labels for each treatment.}
+#'   }
 #'
 #' @method plot prob_split_tree_list
 #' @export
-plot.prob_split_tree_list <- function(
-    tree_list, sens_names = NULL, leaf.labels = NULL){
+plot.prob_split_tree_list <- function(x, ...){
+  tree_list <- x
+  args <- list(...)
+  sens_names <- if (!is.null(args$sens_names)) args$sens_names else NULL
+  leaf.labels <- if (!is.null(args$leaf.labels)) args$leaf.labels else NULL
   if (!inherits(tree_list, "prob_split_tree_list")) {
     stop("`tree_list` must be of class 'prob_split_tree_list'.")
   }

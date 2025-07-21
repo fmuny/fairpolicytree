@@ -4,12 +4,16 @@
 \alias{plot.prob_split_tree}
 \title{Plot a Probabilistic Split Tree.}
 \usage{
-\method{plot}{prob_split_tree}(tree, leaf.labels = NULL)
+\method{plot}{prob_split_tree}(x, ...)
 }
 \arguments{
-\item{tree}{A fitted object of class `'prob_split_tree'`.}
+\item{x}{A fitted object of class `'prob_split_tree'`.}
 
-\item{leaf.labels}{An optional character vector of leaf labels for each treatment.}
+\item{...}{Additional arguments passed to the plotting function.
+Currently supports:
+\describe{
+  \item{`leaf.labels`}{An optional character vector of leaf labels for each treatment.}
+}}
 }
 \description{
 Plot a Probabilistic Split Tree.
