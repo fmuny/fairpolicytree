@@ -1,4 +1,4 @@
-# Interpretable Policy Learning with Sensitive Attributes
+# Fairness-Aware and Interpretable Policy Learning
 
 Welcome to the repository for the **fairpolicytree** package, developed as part of the research paper _Fairness-Aware and Interpretable Policy Learning_.
 
