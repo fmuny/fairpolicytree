@@ -16,8 +16,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 This notebook provides a condensed replication of the empirical results of the paper
-*Fairness-Aware and Interpretable Policy Learning* by Nora Bearth, Michael Lechner,
-Jana Mareckova and Fabian Muny.
+[*Fairness-Aware and Interpretable Policy Learning*](https://arxiv.org/abs/2509.12119) 
+by Nora Bearth, Michael Lechner, Jana Mareckova and Fabian Muny.
 
 ## Preparations
 
@@ -30,7 +30,6 @@ library(policytree)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
-library(gridExtra)
 library(rcompanion)
 library(BayesFactor)
 library(patchwork)
@@ -41,7 +40,11 @@ library(cluster)
 
 # Data source path
 DATA_PATH <- "Q:/SEW/Projekte/NFP77/BeLeMaMu.Fairness/Data_fair/cleaned"
+# Name of cleaned data file
 SET_STR = "05_application"
+# Name of outcome of interest
+# One of "outcome0131", "outcome1324", "outcome2031", "outcome2631"
+# Main results use total months of employment from month 1 to 31 after program start
 OUTCOME = "outcome0131"
 
 # Method for ties in fairness adjustments
@@ -61,7 +64,7 @@ SEED = 12345
 set.seed(SEED)
 ```
 
-The analysis is based on the Swiss Active Labor Market Policy Evaluation Dataset (administrative data), which can be downloaded from <https://doi.org/10.23662/FORS-DS-1203-1>. The raw data has been prepared in the file ``data_cleaning.py``, the scores have been estimated using the Modified Causal Forest (MCF, [Lechner 2018](https://arxiv.org/abs/1812.09487)) in the file ``data_cleaning.py``.
+The analysis is based on the Swiss Active Labor Market Policy Evaluation Dataset (administrative data), which can be downloaded from <https://doi.org/10.23662/FORS-DS-1203-1>. The raw data has been prepared in the file <a href="https://github.com/fmuny/fairpolicytree/blob/main/replication_paper/data_cleaning.py" target="_blank">``data_cleaning.py``</a>, the scores have been estimated using the Modified Causal Forest (MCF, [Lechner 2018](https://arxiv.org/abs/1812.09487)) in the file <a href="https://github.com/fmuny/fairpolicytree/blob/main/replication_paper/mcf_estimation.py" target="_blank">``mcf_estimation.py``</a>.
 
 ```{r data, results='hide', message = FALSE, warning=FALSE}
 # Load and prepare data (add original outcome): Training sample
@@ -82,7 +85,7 @@ training_df$sens_comb <- factor(apply(
 evaluation_df$sens_comb <- factor(apply(
   evaluation_df[c("female", "swiss")], 1, function(x) paste(x, collapse = "_")))
 
-# Load variable lists and mappings
+# Load variable lists and mappings (created when running data_cleaning file)
 columns <- read.csv(file.path(DATA_PATH, "columns.csv"))
 mappings <- read.csv(file.path(DATA_PATH, "mappings.csv"))
 
@@ -117,7 +120,7 @@ ggplot(
 
 ## MQ-Adjustment
 
-Next, the MQ-adjustment is performed on both the decision-relevant variables and the scores.
+Next, the MQ-adjustment is performed on both the features and the scores.
 We find that the MQ-adjustment approximately preserves the moments of the original
 variables but reduces the differences between the sensitive groups, as shown in the plots.
 
@@ -188,7 +191,7 @@ table_A <- data.frame(
     As_mq_std = sqrt(diag(var(As_mq))))
 knitr::kable(
   table_A, digits=2,
-  caption="Means and standard deviations of decision-relevant variables before and after adjustment")
+  caption="Means and standard deviations of features before and after adjustment")
 ```
 
 ```{r mq_adjustment_plot, warning=FALSE, fig.width=9, fig.height=3.5}
@@ -225,7 +228,7 @@ df_fullplot_appendix <- df_fullplot[!is.na(df_fullplot$program_number) & df_full
 
 histograms_cleaning <- ggplot(df_fullplot_main, aes(x = value, fill = sens_comb)) +
   geom_histogram(aes(y = after_stat(density)), alpha = 0.5, position = "identity", bins = 32) +
-  labs(x=NULL, y = "Density", fill="Sensitive attribue:") +
+  labs(x=NULL, y = "Density", fill="Sensitive attribute:") +
   theme_minimal() +
   facet_wrap(~name_type, scales = "free", ncol = 4) +
   scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
@@ -236,7 +239,7 @@ plot(histograms_cleaning)
 
 histograms_cleaning_appendix <- ggplot(df_fullplot_appendix, aes(x = value, fill = sens_comb)) +
   geom_histogram(aes(y = after_stat(density)), alpha = 0.5, position = "identity", bins = 32) +
-  labs(x=NULL, y = "Density", fill="Sensitive attribue:") +
+  labs(x=NULL, y = "Density", fill="Sensitive attribute:") +
   theme_minimal() +
   facet_wrap(~name_type, scales = "free", ncol = 5) +
   scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
@@ -249,9 +252,9 @@ plot(histograms_cleaning_appendix)
 
 ## Benchmark Policies
 
-The analysis of the policy value-interpretability-fairness trade-off starts by analyzing
+The analysis of the interplay between policy value, interpretability, and fairness starts by analyzing
 several benchmark policies. This includes the observed assignments and blackbox
-assignments according to the largest score. By using the MQ-adjusted policy
+assignments according to the largest estimated score. By using the MQ-adjusted
 scores we can obtain a fairness-aware blackbox assignment. In addition, we can obtain a
 completely fair benchmark (according to our definition) which assigns all individuals
 to the same treatment.
@@ -292,7 +295,8 @@ for (set_name in names(datasets)) {
   df <- datasets[[set_name]]
   res <- matrix(NA, nrow = length(rows), ncol = length(cols),
                 dimnames = list(rows, cols))
-  # Observed assignment
+  # Observed assignment, policy value based on Y 
+  # (if variance required estimated scores could be used as well)
   D_obs <- df[[VAR_D_NAME]]
   res["observed", ] <- c(
     FALSE,
@@ -345,12 +349,14 @@ knitr::kable(results_list[['evaluation']], digits=3, caption="Evaluation sample"
 ## Policy Trees
 
 Next, we assess policy tree assignments for different adjustment scenarios:
-- No adjustment ($S$ included in decision-relevant variables)
-- No adjustment ($S$ excluded from decision-relevant variables)
-- Adjustment of decision-relevant variables
+
+- No adjustment ($S$ included in decision-relevant features)
+- No adjustment ($S$ excluded from decision-relevant features)
+- Adjustment of decision-relevant features
 - Adjustment of scores
-- Adjustment of decision-relevant variables and scores
-Note that policies involving adjustments of the decision-relevant variables are no longer
+- Adjustment of decision-relevant features and scores
+
+Note that policies involving adjustments of the decision-relevant features are no longer
 interpretable when using the standard policy trees.
 
 ```{r policytrees, warning=FALSE, fig.width=6, fig.height=6}
@@ -431,10 +437,11 @@ plot(opt_tree_list[['pt_adjust_A_score']], leaf.labels=lab)
 
 ## Probabilistic Split Trees
 
-To regain interpretability of policy trees with adjusted decision-relevant variables,
-we can fit probabilisty split trees. We obtain one tree per sensitive group.
-In these trees there may occur probabilistic splits, meaning that individuals
-at the splitting threshold may proceed in both child nodes with a certain probability.
+To regain interpretability of policy trees with adjusted decision-relevant features,
+we can fit probabilistic split trees. We obtain one tree per sensitive group.
+In these trees there may occur probabilistic splits, meaning that at the splitting
+threshold, a certain proportion of individuals is randomly assigned to the left 
+child node, while the remainder proceeds to the right child node.
 These probabilistic splits are necessary to break the dependence of the resulting
 assignments with the sensitive attributes.
 
@@ -525,9 +532,9 @@ dot_string <- paste0("
       digraph combined {
         rankdir=LR;
         node [shape=box];
-        top [label=\"female = 1\", shape=ellipse, style=filled, fillcolor=lightblue];
-        top2 [label=\"swiss = 1\", shape=ellipse, style=filled, fillcolor=lightblue];
-        top3 [label=\"swiss = 1\", shape=ellipse, style=filled, fillcolor=lightblue];
+        top [label=\"female = 0\", shape=ellipse, style=filled, fillcolor=lightblue];
+        top2 [label=\"swiss = 0\", shape=ellipse, style=filled, fillcolor=lightblue];
+        top3 [label=\"swiss = 0\", shape=ellipse, style=filled, fillcolor=lightblue];
         ", dot_string_total, "
         top -> top2 [labeldistance=3, labelangle=-30, headlabel='True'];
         top -> top3 [labeldistance=3, labelangle=30, headlabel='False'];
@@ -544,12 +551,12 @@ DiagrammeR::grViz(dot_string)
 
 ## Partial Adjustments
 
-One may only partially adjust the variables to further analyse the trade-off
+One may only partially adjust the variables to further analyse the interplay
 between policy value and fairness. This is achieved by a linear combination of adjusted
 and original variables for different weights between 0 and 1. The steps are as follows:
 
 1. Get grid of weights from 0 to 1 by 0.1 steps
-2. Get weighted combinations of scores and decision-relevant variables
+2. Get partially adjusted scores and partially adjusted decision-relevant features
 3. Run policy trees
 4. Compute policy value and fairness measures and plot
 
@@ -603,7 +610,6 @@ range_CramerV <- results_partial %>% filter(Metric == "CramerV") %>%
   summarise(min_val = floor(min(Value) * 10) / 10, max_val = ceiling(
     max(Value) * 10) / 10)
 # Plot
-# Plot
 p1 <- ggplot(results_partial[results_partial$Metric == "Policy value", ], aes(
   x = Weight, y = Value, color = Scenario, linetype= Scenario)) +
   geom_line(linewidth=0.7) +
@@ -639,9 +645,10 @@ plot_combined
 ## Winners and Losers
 
 Finally, we can assess the winners and losers of the probabilistic tree assignments
-compared to unadjusted policy tree assignments. The "winners" and "loser" groups
-are determined by kmeans clustering, with the number of groups determined by the
-Silhouette score with the restriction of a minimum cluster size of 1% of the observations.
+compared to assignments from the fairness-unaware policy tree (excluding $S$). 
+The "winner" and "loser" groups are determined by kmeans clustering, with the 
+number of clusters determined by the Silhouette score with the restriction of a
+minimum cluster size of 1% of the observations.
 
 ```{r kmeans, warning=FALSE}
 # Prepare data
@@ -663,7 +670,7 @@ data_df <- cbind(
     scores_org_out
   )
 )
-# Compute the difference between actual and reference policy value.
+# Compute the difference between actual and reference score.
 data_df$policyvalue_diff <- data_df$policyvalue_adjusted - data_df$policyvalue_unadjusted
 policyvalue_diff_matrix <- matrix(data_df$policyvalue_diff, ncol = 1)
 # Determine optimal number of clusters using Silhouette score
@@ -692,7 +699,7 @@ df_grouped_means <- data_df %>%
   pivot_wider(names_from = cluster_ids, values_from = mean) %>%
   arrange(factor(variable, levels = c("policyvalue_diff", setdiff(variable, "policyvalue_diff")))) %>% 
   mutate(across(where(is.numeric), round, 2))
-# Generale meaningful cluster labels
+# Generate meaningful cluster labels
 generate_cluster_labels <- function(means) {
   labels <- character(length(means))
   gains <- means > 0

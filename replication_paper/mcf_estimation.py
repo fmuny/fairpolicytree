@@ -1,9 +1,9 @@
 # ########################################################################### #
-# #############   Policy learning with sensitive attributes   ############### #
-# ############# N. Bearth, M. Lechner, J. Mareckova, F. Muny  ############### #
+# ############ Fairness-Aware and Interpretable Policy Learning ############# #
+# ############   N. Bearth, M. Lechner, J. Mareckova, F. Muny   ############# #
 # ########################################################################### #
 
-# FILE 2.) ESTIMATE POLIC SCORES WITH MCF
+# FILE 2.) ESTIMATE SCORES WITH MCF
 
 # Standard libraries
 import numpy as np
@@ -72,7 +72,7 @@ print(correlation_df(
     "Outcome")*100)
 print("-"*70)
 print(
-      "Correlations of sensitive attribute with decision variables "
+      "Correlations of sensitive attribute with decision-relevant variables "
       "[-100, 100]")
 print("-"*70)
 print(correlation_df(
@@ -150,11 +150,11 @@ for out in cols['Y']:
     # Train the forest
     tree_df, fill_y_df, outpath_train = my_mcf.train(df_tr)
 
-    # Predict policy scores for data used to train allocation rules
+    # Predict scores for data used to train allocation rules
     results_pr, _ = my_mcf.predict(df_pr)
     my_mcf.analyse(results_pr)
 
-    # Predict policy scores for data used to evaluate allocation rules
+    # Predict scores for data used to evaluate allocation rules
     results_ev, _ = my_mcf.predict(df_ev)
 
     # Create report

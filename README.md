@@ -1,6 +1,6 @@
 # Fairness-Aware and Interpretable Policy Learning
 
-Welcome to the repository for the **fairpolicytree** package, developed as part of the research paper _Fairness-Aware and Interpretable Policy Learning_.
+Welcome to the repository for the **fairpolicytree** package, developed as part of the research paper [_Fairness-Aware and Interpretable Policy Learning_](https://arxiv.org/abs/2509.12119).
 
 This repository provides:
 
@@ -30,9 +30,10 @@ Open the [replication notebook](https://fmuny.github.io/fairpolicytree/replicati
 
 ## 📫 Citation
 
-If you use this package or replication materials, please cite the paper:
+If you use this package or replication materials, please cite the [paper](https://arxiv.org/abs/2509.12119):
 
-> *Bearth, N., Lechner, M., Mareckova, J., Muny, F.* (2025). **Fairness-Aware and Interpretable Policy Learning**. *Mimeo*.
+> *Bearth, N., Lechner, M., Mareckova, J., Muny, F.* (2025). **Fairness-Aware and Interpretable Policy Learning**. *arXiv preprint
+arXiv:2509.12119*.
 
 ## 📜 License
 

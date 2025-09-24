@@ -1,6 +1,6 @@
 # ########################################################################### #
-# #############   Policy learning with sensitive attributes   ############### #
-# ############# N. Bearth, M. Lechner, J. Mareckova, F. Muny  ############### #
+# ############ Fairness-Aware and Interpretable Policy Learning ############# #
+# ############   N. Bearth, M. Lechner, J. Mareckova, F. Muny   ############# #
 # ########################################################################### #
 
 # FILE 1.) DATA CLEANING
@@ -242,9 +242,9 @@ for i in Y_cols:
 df_onehot = df[ID_cols + D_cols_onehot + Y_cols + X_cols_onehot]
 df = df[ID_cols + D_cols + Y_cols + X_cols]
 
-# %%% A Decision variables
+# %%% A decision-relevant variables
 
-# Define decision variables (educ, age, income, employment hist)
+# Define decision-relevant variables (educ, age, income, employment hist)
 A_cols_ord = [
     "age",
     "past_income",
