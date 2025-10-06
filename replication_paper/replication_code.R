@@ -8,6 +8,8 @@
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --
 
 # Load packages
+# install.packages("devtools")
+# library(devtools)
 # install_github("fmuny/fairpolicytree")
 library(fairpolicytree)
 library(policytree)
@@ -24,8 +26,8 @@ library(kableExtra)
 library(cluster)
 
 # Data source path
-# DATA_PATH <- "D:/Fabian_Muny/Data_fair/cleaned"
-DATA_PATH <- "Q:/SEW/Projekte/NFP77/BeLeMaMu.Fairness/Data_fair/cleaned"
+DATA_PATH <- "D:/Data_fair/cleaned"
+# DATA_PATH <- "Q:/SEW/Projekte/NFP77/BeLeMaMu.Fairness/Data_fair/cleaned"
 SET_STR = "05_application"
 OUTCOME = "outcome0131"
 
@@ -47,8 +49,8 @@ set.seed(SEED)
 
 # Save outputs
 save <- TRUE
-# RESULTS_PATH <- "D:/Fabian_Muny/Results_fair/"
-RESULTS_PATH <- "Q:/SEW/Projekte/NFP77/BeLeMaMu.Fairness/Results_fair/"
+RESULTS_PATH <- "D:/Results_fair/"
+# RESULTS_PATH <- "Q:/SEW/Projekte/NFP77/BeLeMaMu.Fairness/Results_fair/"
 if(save){
   folder_name <- format(Sys.Date(), "%Y-%m-%d")
   RESULTS_PATH <- paste0(RESULTS_PATH, folder_name, "_depth", PT_DEPTH, "_", OUTCOME, "/")

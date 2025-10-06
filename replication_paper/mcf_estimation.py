@@ -10,14 +10,18 @@ import numpy as np
 import pandas as pd
 import os
 from sklearn.model_selection import train_test_split
-from scipy.stats import chi2_contingency
+import time
 
-# Special lbraries
+# Special libraries
 # pip install mcf
 from mcf import ModifiedCausalForest, McfOptPolReport
 
+# Start timing
+start_time = time.time()
+
 # Basic settings
-PATH_TO_DATA = "D:\\Fabian_Muny\\Data_fair\\"
+PATH_TO_DATA = "D:\\Data_fair\\"
+PATH_MCF_OUTPUTS = "D:\\Results_fair\\MCF_outputs\\"
 RANDOM_STATE = 0
 np.random.seed(RANDOM_STATE)
 
@@ -35,61 +39,10 @@ mappings_back = {var: {b: a for a, b in mappings[
 # Choose setting
 set_str = "05_application"
 
+# Define for which outcomes the estimation should be performed
+outcomes_list = ['outcome0131']
+# All outcomes: ['outcome0131', 'outcome1324', 'outcome2031', 'outcome2631']
 
-# %% Descriptive analysis of correlations
-def print_correlation(A, B, A_name="A", B_name="B"):
-    with np.errstate(divide='ignore', invalid="ignore"):
-        ccc = np.corrcoef(A, B)[0, 1]
-    print(f"corr({A_name}, {B_name}) = {ccc:.3}")
-
-
-def correlation_df(A, B, A_name="", B_name=""):
-    corr = pd.DataFrame(columns=A.columns, index=B.columns)
-    corr.index.name = B_name
-    corr.columns.name = A_name
-    for j in A.columns:
-        for i in B.columns:
-            with np.errstate(divide='ignore', invalid="ignore"):
-                corr.loc[i, j] = np.corrcoef(A.loc[:, j], B.loc[:, i])[0, 1]
-    return corr
-
-
-print("-"*70)
-print("Correlations of sensitive attribute with treatments [-100, 100]")
-print("-"*70)
-print(correlation_df(
-    df_onehot[cols["S_onehot"]],
-    df_onehot[cols["D_onehot"]],
-    "Sensitive",
-    "Treatment")*100)
-print("-"*70)
-print("Correlations of sensitive attribute with outcome [-100, 100]")
-print("-"*70)
-print(correlation_df(
-    df_onehot[cols["S_onehot"]],
-    df_onehot[cols["Y"]],
-    "Sensitive",
-    "Outcome")*100)
-print("-"*70)
-print(
-      "Correlations of sensitive attribute with decision-relevant variables "
-      "[-100, 100]")
-print("-"*70)
-print(correlation_df(
-    df_onehot[cols["S_onehot"]],
-    df_onehot[cols["A_onehot"]],
-    "Sensitive",
-    "Decision")*100)
-print("-"*70)
-
-# Chi squared test of observed assignments
-obs = pd.crosstab(df[cols['D']].squeeze(), df[cols['S']].astype(
-    str).agg(''.join, axis=1))
-res = chi2_contingency(obs)
-print("Chi2 independence test (H0: independence):")
-print(f"test statistic: {res.statistic:.5f}")
-print(f"p-value: {res.pvalue:.5f}")
-# Independence rejected
 
 # %% Sample splits
 
@@ -134,7 +87,7 @@ df_ev.to_csv(PATH_TO_DATA + "\\cleaned\\data_clean_ev.csv", index=False)
 # Based on the following example
 # https://github.com/MCFpy/mcf/blob/main/examples/mcf_optpol_combined.py
 
-for out in cols['Y']:
+for out in outcomes_list:
 
     # Create an instance of the Modified Causal Forest model
     my_mcf = ModifiedCausalForest(
@@ -145,22 +98,22 @@ for out in cols['Y']:
         var_x_name_unord=cols['X_unord'],  # Unordered covariate
         gen_iate_eff=True,
         cf_compare_only_to_zero=True,
-        gen_outpath=f"D:\\Fabian_Muny\\Results_fair\\MCF_outputs\\{set_str}_{out}"
+        gen_outpath=f"{PATH_MCF_OUTPUTS}{set_str}_{out}"
     )
     # Train the forest
-    tree_df, fill_y_df, outpath_train = my_mcf.train(df_tr)
+    my_mcf.train(df_tr)
 
     # Predict scores for data used to train allocation rules
-    results_pr, _ = my_mcf.predict(df_pr)
+    results_pr = my_mcf.predict(df_pr)
     my_mcf.analyse(results_pr)
 
     # Predict scores for data used to evaluate allocation rules
-    results_ev, _ = my_mcf.predict(df_ev)
+    results_ev = my_mcf.predict(df_ev)
 
     # Create report
     my_report = McfOptPolReport(
         mcf=my_mcf,
-        outputpath=f"D:\\Fabian_Muny\\Results_fair\\MCF_outputs\\{set_str}_{out}")
+        outputpath=f"{PATH_MCF_OUTPUTS}{set_str}_{out}")
     my_report.report()
 
     # Save IATEs
@@ -179,3 +132,9 @@ for out in cols['Y']:
     results_ev['iate_data_df'].to_csv(
         PATH_TO_DATA + "\\cleaned\\" + set_str + "_" + out + "\\iates_ev.csv",
         index=False)
+
+end_time = time.time()
+
+print("Start:", start_time)
+print("End:", end_time)
+print("Elapsed (seconds):", end_time - start_time)

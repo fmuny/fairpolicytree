@@ -8,13 +8,18 @@
 # Standard libraries
 import numpy as np
 import pandas as pd
+import time
 
-# Special lbraries
+# Special libraries
+# pip install openpyxl
 # pip install "flaml[automl]"
 from flaml import AutoML
 
+# Timing
+start_time = time.time()
+
 # Basic settings
-PATH_TO_DATA = "D:\\Fabian_Muny\\Data_fair\\"
+PATH_TO_DATA = "D:\\Data_fair\\"
 RANDOM_STATE = 0
 np.random.seed(RANDOM_STATE)
 
@@ -299,3 +304,9 @@ pd.DataFrame.from_dict(mappings, orient='index').T.to_pickle(
     PATH_TO_DATA + "cleaned\\mappings.pkl")
 pd.DataFrame.from_dict(mappings, orient='index').T.to_csv(
     PATH_TO_DATA + "cleaned\\mappings.csv")
+
+end_time = time.time()
+
+print("Start:", start_time)
+print("End:", end_time)
+print("Elapsed (seconds):", end_time - start_time)
