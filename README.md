@@ -25,8 +25,6 @@ A detailed step-by-step guide to obtaining the paper's results is provided in th
 
 To replicate the empirical results (including data preparation), navigate to `replication_paper` folder and run the following scripts in order:
 
-Open the [replication notebook](https://fmuny.github.io/fairpolicytree/replication_paper/replication_notebook.html) for a step-by-step guide or
-
 1. `data_cleaning.py` (Python)
 2. `mcf_estimation.py` (Python)
 3. `replication_code.R` (R)
@@ -38,7 +36,7 @@ With these specifications the runtimes are as follows:
 * `mcf_estimation.py`: ~5 days, 22 hours, much faster with parallelization (`gen_mp_parallel=None`), but results will not be peferctly reproducible
 * `replication_code.R`: ~1 hour, 15 min
 
-Data preparation and estimation of scores has been carried out with Python 3.12.11, the detailed dependencies can be found [here](https://github.com/fmuny/fairpolicytree/blob/main/replication_paper/python_environment.yaml). The main analysis is conducted using R version 4.4.2.
+Data preparation and estimation of scores have been carried out with Python 3.12.11, the detailed dependencies can be found [here](https://github.com/fmuny/fairpolicytree/blob/main/replication_paper/python_environment.yaml). The main analysis is conducted using R version 4.4.2.
 
 
 ## 📫 Citation
