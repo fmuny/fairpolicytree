@@ -21,12 +21,15 @@ devtools::install_github("fmuny/fairpolicytree")
 
 ## 🔁 Reproducing the Results
 
-To replicate the empirical results from the paper:
+A detailed step-by-step guide to obtaining the paper's results is provided in the [replication notebook](https://fmuny.github.io/fairpolicytree/replication_paper/replication_notebook.html).
+
+To replicate the empirical results (including data preparation), navigate to `replication_paper` folder and run the following scripts in order:
 
 Open the [replication notebook](https://fmuny.github.io/fairpolicytree/replication_paper/replication_notebook.html) for a step-by-step guide or
 
-1. Navigate to the `replication_paper` folder.
-2. Follow the instructions in the included scripts
+1. `data_cleaning.py` (Python)
+2. `mcf_estimation.py` (Python)
+3. `replication_code.R` (R)
 
 The analysis has been carried out on a machine with 16 virtual CPUs, 64 GB RAM, 250 GB SSD Storage and the MS Windows Server 2022 Datacenter operating system. 
 With these specifications the runtimes are as follows:

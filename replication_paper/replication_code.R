@@ -7,6 +7,7 @@
 # ------------ Load packages and define parameters -----------------------------
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --
 
+start_time <- Sys.time()
 # Load packages
 # install.packages("devtools")
 # library(devtools)
@@ -959,3 +960,9 @@ for(set_name in names(data_list2)) {
     writeLines(kmeans_export_latex_long, paste0(RESULTS_PATH, "kmeans_long_", set_name,".tex"))
   }
 }
+
+end_time <- Sys.time()
+
+cat("Start:", start_time, "\n")
+cat("End:", end_time, "\n")
+cat("Elapsed (seconds):", as.numeric(end_time - start_time, units = "secs"), "\n")
