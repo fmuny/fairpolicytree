@@ -35,7 +35,7 @@ With these specifications the runtimes are as follows:
 * `mcf_estimation.py`: ~5 days, 22 hours, much faster with parallelization (`gen_mp_parallel=None`), but results will not be peferctly reproducible
 * `replication_code.R`: ~1 hour, 15 min
 
-Data preparation and estimation of scores has been carried out with Python 3.12.11, the detailed dependencies can be found [here](https://https://github.com/fmuny/fairpolicytree/blob/main/replication_paper/python_environment.yaml?raw=true). The main analysis is conducted using R version 4.4.2.
+Data preparation and estimation of scores has been carried out with Python 3.12.11, the detailed dependencies can be found [here](https://github.com/fmuny/fairpolicytree/blob/main/replication_paper/python_environment.yaml). The main analysis is conducted using R version 4.4.2.
 
 
 ## 📫 Citation
