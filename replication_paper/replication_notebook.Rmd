@@ -19,7 +19,7 @@ This notebook provides a condensed replication of the empirical results of the p
 [*Fairness-Aware and Interpretable Policy Learning*](https://arxiv.org/abs/2509.12119) 
 by Nora Bearth, Michael Lechner, Jana Mareckova and Fabian Muny.
 
-## Preparations
+# Preparations
 
 The functions used for the analysis can be accessed with the ``fairpolicytree`` package, which can be installed from github using ``install_github("fmuny/fairpolicytree")``. This is an extension of the ``policytree`` package ([Sverdrup, Kanodia, Zhou, Athey, Wager, 2020](https://cran.r-project.org/web/packages/policytree/index.html)). To start, load the required packages and define basic parameters.
 
@@ -39,7 +39,7 @@ library(kableExtra)
 library(cluster)
 
 # Data source path
-DATA_PATH <- "Q:/SEW/Projekte/NFP77/BeLeMaMu.Fairness/Data_fair/cleaned"
+DATA_PATH <- "D:/Data_fair/cleaned"
 # Name of cleaned data file
 SET_STR = "05_application"
 # Name of outcome of interest
@@ -118,7 +118,7 @@ ggplot(
   facet_wrap(~variable, scales='free')
 ```
 
-## MQ-Adjustment
+# MQ-Adjustment
 
 Next, the MQ-adjustment is performed on both the features and the scores.
 We find that the MQ-adjustment approximately preserves the moments of the original
@@ -250,7 +250,7 @@ plot(histograms_cleaning_appendix)
 ```
 
 
-## Benchmark Policies
+# Benchmark Policies
 
 The analysis of the interplay between policy value, interpretability, and fairness starts by analyzing
 several benchmark policies. This includes the observed assignments and blackbox
@@ -346,7 +346,7 @@ knitr::kable(results_list[['training']], digits=3, caption="Training sample")
 knitr::kable(results_list[['evaluation']], digits=3, caption="Evaluation sample")
 ```
 
-## Policy Trees
+# Policy Trees
 
 Next, we assess policy tree assignments for different adjustment scenarios:
 
@@ -435,7 +435,7 @@ plot(opt_tree_list[['pt_adjust_score']], leaf.labels=lab)
 plot(opt_tree_list[['pt_adjust_A_score']], leaf.labels=lab)
 ```
 
-## Probabilistic Split Trees
+# Probabilistic Split Trees
 
 To regain interpretability of policy trees with adjusted decision-relevant features,
 we can fit probabilistic split trees. We obtain one tree per sensitive group.
@@ -549,7 +549,7 @@ dot_string <- gsub("past_income", "past earnings", dot_string, fixed = TRUE)
 DiagrammeR::grViz(dot_string)
 ```
 
-## Partial Adjustments
+# Partial Adjustments
 
 One may only partially adjust the variables to further analyse the interplay
 between policy value and fairness. This is achieved by a linear combination of adjusted
@@ -642,7 +642,7 @@ plot_combined <- (p1 + p2) + plot_layout(guides = "collect")
 plot_combined
 ```
 
-## Winners and Losers
+# Winners and Losers
 
 Finally, we can assess the winners and losers of the probabilistic tree assignments
 compared to assignments from the fairness-unaware policy tree (excluding $S$). 
@@ -709,17 +709,17 @@ generate_cluster_labels <- function(means) {
   # Gains
   if(sum(gains) > 0){
     ranks <- rank(-means[gains], ties.method = "first")
-    intensity <- if(sum(gains) > 1) paste(intensity_labels[seq_along(ranks)], "Gain") else "Gain"
+    intensity <- if(sum(gains) > 1) paste(intensity_labels[seq_along(ranks)], "gain") else "gain"
     labels[gains] <- intensity[order(ranks)]
   }
   # Losses
   if(sum(losses) > 0){
     ranks <- rank(means[losses], ties.method = "first")
-    intensity <- if(sum(losses) > 1) paste(intensity_labels[seq_along(ranks)], "Loss") else "Loss"
+    intensity <- if(sum(losses) > 1) paste(intensity_labels[seq_along(ranks)], "loss") else "loss"
     labels[losses] <- intensity[order(ranks)]
   }
   # No change
-  labels[zeros] <- "No Change"
+  labels[zeros] <- "Small to no change"
   return(labels)
 }
 colnames(df_grouped_means) <- c("Variable", generate_cluster_labels(

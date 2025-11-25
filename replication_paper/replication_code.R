@@ -27,7 +27,6 @@ library(cluster)
 
 # Data source path
 DATA_PATH <- "D:/Data_fair/cleaned"
-# DATA_PATH <- "Q:/SEW/Projekte/NFP77/BeLeMaMu.Fairness/Data_fair/cleaned"
 SET_STR = "05_application"
 OUTCOME = "outcome0131"
 
@@ -50,7 +49,6 @@ set.seed(SEED)
 # Save outputs
 save <- TRUE
 RESULTS_PATH <- "D:/Results_fair/"
-# RESULTS_PATH <- "Q:/SEW/Projekte/NFP77/BeLeMaMu.Fairness/Results_fair/"
 if(save){
   folder_name <- format(Sys.Date(), "%Y-%m-%d")
   RESULTS_PATH <- paste0(RESULTS_PATH, folder_name, "_depth", PT_DEPTH, "_", OUTCOME, "/")
@@ -753,17 +751,17 @@ generate_cluster_labels <- function(means) {
   # Gains
   if(sum(gains) > 0){
     ranks <- rank(-means[gains], ties.method = "first")
-    intensity <- if(sum(gains) > 1) paste(intensity_labels[seq_along(ranks)], "Gain") else "Gain"
+    intensity <- if(sum(gains) > 1) paste(intensity_labels[seq_along(ranks)], "gain") else "gain"
     labels[gains] <- intensity[order(ranks)]
   }
   # Losses
   if(sum(losses) > 0){
     ranks <- rank(means[losses], ties.method = "first")
-    intensity <- if(sum(losses) > 1) paste(intensity_labels[seq_along(ranks)], "Loss") else "Loss"
+    intensity <- if(sum(losses) > 1) paste(intensity_labels[seq_along(ranks)], "loss") else "loss"
     labels[losses] <- intensity[order(ranks)]
   }
   # No change
-  labels[zeros] <- "No Change"
+  labels[zeros] <- "Small to no change"
   return(labels)
 }
 

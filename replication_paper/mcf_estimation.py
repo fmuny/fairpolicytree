@@ -98,6 +98,8 @@ for out in outcomes_list:
         var_x_name_unord=cols['X_unord'],  # Unordered covariate
         gen_iate_eff=True,
         cf_compare_only_to_zero=True,
+        gen_mp_parallel=1,
+        _int_weight_as_sparse=False,
         gen_outpath=f"{PATH_MCF_OUTPUTS}{set_str}_{out}"
     )
     # Train the forest
